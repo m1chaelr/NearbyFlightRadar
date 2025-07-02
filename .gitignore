@@ -11,6 +11,7 @@ config.py
 *.env
 *.secret
 API/
+aircraftDataset.csv
 
 # Ignore VS Code project settings
 .vscode/
