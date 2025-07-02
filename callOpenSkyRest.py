@@ -9,14 +9,16 @@ def getBoxData(lamin, lomin, lamax, lomax):
     """This function retrieves flight data within a specified bounding box."""
     query_url = f"?lamin={lamin}&lomin={lomin}&lamax={lamax}&lomax={lomax}" # Construct the query parameters
     api_url_with_query = api_source + query_url # Construct the full API URL with the query parameters
-    callOpenSkyRest(api_url_with_query) # Call the OpenSky REST API with the constructed URL
+    flights = callOpenSkyRest(api_url_with_query) # Call the OpenSky REST API with the constructed URL
+    return flights  # Return the list of Flight objects retrieved from the API
 
 def callOpenSkyRest(api_url):
     """This function calls the OpenSky REST API and returns the flight data."""
     response = requests.get(api_url)
     if response.status_code == 200:
         flight_data = response.json()
-        return processFlightData(flight_data)
+        flights = processFlightData(flight_data) 
+        return flights
     else:
         raise Exception(f"Error fetching data from OpenSky API: {response.status_code}")
     
