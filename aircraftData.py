@@ -17,12 +17,12 @@ def load_aircraft_data(csv_path: str) -> dict:
                             for key, value in row.items()
                             if key is not None}
                 
-                # Read the ICAO24 code and airplane model
+                # Read the ICAO24 code and airplane typecode (Model code)
                 icao24 = cleaned_row['icao24'].strip().lower()
-                model = cleaned_row['model'].strip() if cleaned_row['model'] else "Unknown"
+                typecode = cleaned_row['typecode'].strip() if cleaned_row['typecode'] else "Unknown"
 
                 # Store in the dictionary for lookup
-                aircraft_data[icao24] = model
+                aircraft_data[icao24] = typecode
 
             except Exception as e:
                 print(f"Error processing row {row}: {e}")

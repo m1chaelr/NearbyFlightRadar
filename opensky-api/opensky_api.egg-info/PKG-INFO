@@ -1,0 +1,37 @@
+Metadata-Version: 2.4
+Name: opensky-api
+Version: 1.3.0
+Summary: The official OpenSky Network API
+Home-page: https://github.com/openskynetwork/opensky-api
+Author: The OpenSky Network
+Author-email: contact@opensky-network.org
+Maintainer: Markus Fuchs
+Maintainer-email: fuchs@opensky-network.org
+License: GPL
+Classifier: Development Status :: 5 - Stable
+Classifier: Intended Audience :: Developers
+Classifier: Topic :: Scientific/Engineering :: Interface Engine/Protocol Translator
+Classifier: License :: OSI Approved :: GNU General Public License v3 (GPLv3)
+Classifier: Programming Language :: Python :: 2
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.5
+Requires: requests
+License-File: LICENSE.txt
+Requires-Dist: requests
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: description
+Dynamic: home-page
+Dynamic: keywords
+Dynamic: license
+Dynamic: license-file
+Dynamic: maintainer
+Dynamic: maintainer-email
+Dynamic: requires
+Dynamic: requires-dist
+Dynamic: summary
+
+# NearbyFlightRadar
+Working on a birthday present for a friend who loves airplanes, this project will be hosted on a raspberry pi that outputs onto a screen the nearest airplane details for use as decoration in their room.
