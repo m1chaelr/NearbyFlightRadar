@@ -3,12 +3,20 @@
 import requests
 from flight import Flight  # Import the Flight class to create flight objects
 
-api_source = "https://opensky-network.org/api/states/all" # Base URL for the OpenSky Network API
+flight_api_url = "https://opensky-network.org/api/states/all" # Base URL for the OpenSky Network API
 
-def getBoxData(lamin, lomin, lamax, lomax):
+def getBoxData(coords):
     """This function retrieves flight data within a specified bounding box."""
+    lat = coords.get("lat")
+    lamin = lat - 0.5
+    lamax = lat + 0.5
+
+    lon = coords.get("lon")
+    lomin = lon - 0.5
+    lomax = lon + 0.5
+
     query_url = f"?lamin={lamin}&lomin={lomin}&lamax={lamax}&lomax={lomax}" # Construct the query parameters
-    api_url_with_query = api_source + query_url # Construct the full API URL with the query parameters
+    api_url_with_query = flight_api_url + query_url # Construct the full API URL with the query parameters
     flights = callOpenSkyRest(api_url_with_query) # Call the OpenSky REST API with the constructed URL
     return flights  # Return the list of Flight objects retrieved from the API
 
