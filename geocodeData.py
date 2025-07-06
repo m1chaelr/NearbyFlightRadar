@@ -5,8 +5,8 @@ import json
 import requests
 
 # Read the geocode API key from a JSON file
-with open('API/credentials.json') as f:
-    credentials = json.load(f)
+with open('API/credentials.json') as file:
+    credentials = json.load(file)
 geocode_key = credentials['geocode_key']
 
 # Define the geocode API URL
