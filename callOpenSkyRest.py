@@ -2,6 +2,7 @@
 
 import requests
 from flight import Flight  # Import the Flight class to create flight objects
+from opensky_auth import get_token  # Import the function to get the OpenSky API token
 
 flight_api_url = "https://opensky-network.org/api/states/all" # Base URL for the OpenSky Network API
 
@@ -22,7 +23,11 @@ def getBoxData(coords):
 
 def callOpenSkyRest(api_url):
     """This function calls the OpenSky REST API and returns the flight data."""
-    response = requests.get(api_url)
+    token = get_token()  # Get the OpenSky API token
+    headers = {
+        "Authorization": f"Bearer {token}"
+    }
+    response = requests.get(api_url, headers=headers)
     if response.status_code == 200:
         flight_data = response.json()
         flights = processFlightData(flight_data) 
