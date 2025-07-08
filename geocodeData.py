@@ -34,7 +34,7 @@ def getCoords(address: str) -> tuple:
         if geocode_data:  # Check if results exist
             lat = geocode_data[0].get("lat")
             lon = geocode_data[0].get("lon")
-            coords = {"lat": float(lat), "lon": float(lon)}  # Create a dictionary with latitude and longitude
+            coords = (float(lat), float(lon))  # Create a dictionary with latitude and longitude
             return coords
         else:
             print("No geocoding results found.")
