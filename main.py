@@ -5,6 +5,7 @@
 from aircraftData import load_aircraft_data  # Import the function to load aircraft data from a CSV file
 from callOpenSkyRest import getBoxData
 from geocodeData import getCoords 
+from callOpenSkyRest import testCallOpenSkyRest  # Import the function to test the OpenSky REST API
 
 aircraft_models = load_aircraft_data('aircraftDataset.csv')  # Load aircraft data from the CSV file
 street = "16 Lawrence Rd"
@@ -16,10 +17,11 @@ address = {'street': street, 'city': city, 'state': state, 'country': country, '
 
 coords = getCoords(address)  # Get the coordinates for the specified address
 
-flights = getBoxData(coords)  # Example coordinates for the bounding box
-# print(flights[:10])  # Print the first 10 flights for debugging
+# flight_info = getBoxData(coords)  # Example coordinates for the bounding box
+testCallOpenSkyRest()  # Call the function to test the OpenSky REST API
+# print(flight_info)  # Print the flight information retrieved from the OpenSky API
 
-# Get the models for the first 10 flights in the flights list using the aircraft_models dictionary
-for flight in flights[:10]:
-    model = aircraft_models.get(flight.icao24.strip().lower(), "Unknown")
-    print(f"Flight {flight.icao24}: {model}")  # Print the flight's ICAO24 code and its corresponding model
+# # Get the models for the first 10 flights in the flights list using the aircraft_models dictionary
+# for flight in flights[:10]:
+#     model = aircraft_models.get(flight.icao24.strip().lower(), "Unknown")
+#     print(f"Flight {flight.icao24}: {model}")  # Print the flight's ICAO24 code and its corresponding model
