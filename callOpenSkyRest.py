@@ -40,17 +40,20 @@ def getBoxData(coords):
         one_day_ago = now - 86400          # 24 hours ago
         one_day_one_hour_ago = now - 90000 # 25 hours ago
 
-        query = f"?icao24={icao24}&begin={one_day_one_hour_ago}&end={one_day_ago}"
-        aircraft_query = flight_aircraft_url + query  # Construct the API URL for aircraft data
-        result = callOpenSkyRest(aircraft_query, type = "aircraft") 
+        # query = f"?icao24={icao24}&begin={one_day_one_hour_ago}&end={one_day_ago}"
+        # aircraft_query = flight_aircraft_url + query  # Construct the API URL for aircraft data
+        # result = callOpenSkyRest(aircraft_query, type = "aircraft") 
 
         flight_info = {
             "icao24": nearest_flight.icao24,
             "latitude": nearest_flight.latitude,
             "longitude": nearest_flight.longitude,
             "velocity": nearest_flight.velocity,
-            "depAirport": nearest_flight.estDepartureAirport,
-            "arrAirport": nearest_flight.estArrivalAirport,
+            "callsign": nearest_flight.callsign,
+            "squawk": nearest_flight.squawk,
+            "spi": nearest_flight.spi,
+            # "depAirport": nearest_flight.estDepartureAirport,
+            # "arrAirport": nearest_flight.estArrivalAirport,
         }
     return flight_info  # Return the list of Flight objects retrieved from the API
 
@@ -63,7 +66,6 @@ def callOpenSkyRest(api_url, type):
     response = requests.get(api_url, headers=headers)
     if response.status_code == 200:
         flight_data = response.json()
-        print(flight_data)
 
         if type == "states":
             result = processStatesData(flight_data) 

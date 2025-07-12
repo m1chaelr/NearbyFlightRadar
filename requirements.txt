@@ -1,5 +1,9 @@
+beautifulsoup4==4.13.4
 certifi==2025.6.15
 charset-normalizer==3.4.2
 idna==3.10
+-e git+https://github.com/m1chaelr/NearbyFlightRadar@4ab5a11bd62e1d0535b806f225c1e86f6d2803a1#egg=opensky_api
 requests==2.32.4
+soupsieve==2.7
+typing_extensions==4.14.1
 urllib3==2.5.0
