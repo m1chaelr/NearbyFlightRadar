@@ -6,7 +6,8 @@ import sys
 def load_aircraft_data(csv_path: str) -> dict:
     """Load aircraft data from a CSV file into a dictionary."""
 
-    csv.field_size_limit(sys.maxsize) # Increase the field size limit to handle large CSV file
+    # csv.field_size_limit(sys.maxsize) # Increase the field size limit to handle large CSV file
+    csv.field_size_limit(2**31 - 1)  # Set the field size limit to the maximum possible value [Windows compatibility]
     aircraft_data = {}
     with open(csv_path, newline = '') as file:
         reader = csv.DictReader(file)

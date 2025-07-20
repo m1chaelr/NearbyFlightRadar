@@ -1,6 +1,6 @@
 import requests
 import time
-from opensky_auth import get_token  # Reuse the OAuth2 token function
+from openSkyAuth import get_token  # Reuse the OAuth2 token function
 
 def test_flights_by_aircraft(icao24):
     """

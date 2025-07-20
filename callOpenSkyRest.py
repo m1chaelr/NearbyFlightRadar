@@ -2,7 +2,7 @@
 
 import requests
 from flight import Flight  # Import the Flight class to create flight objects
-from opensky_auth import get_token  # Import the function to get the OpenSky API token
+from openSkyAuth import get_token  # Import the function to get the OpenSky API token
 import time
 
 flight_states_url = "https://opensky-network.org/api/states/all" # Base URL for the OpenSky Network API
@@ -14,7 +14,7 @@ def testCallOpenSkyRest():
     result = callOpenSkyRest(temp_url, type = "aircraft")
     print(result)  # Print the number of flights retrieved from the API
 
-def getBoxData(coords):
+def getBoxData(coords, verbose):
     """This function retrieves flight data within a specified bounding box."""
     lat = coords[0]
     lamin = lat - 0.5
@@ -26,7 +26,7 @@ def getBoxData(coords):
 
     query = f"?lamin={lamin}&lomin={lomin}&lamax={lamax}&lomax={lomax}" # Construct the query parameters
     states_query = flight_states_url + query # Construct the full API URL with the query parameters
-    flights = callOpenSkyRest(states_query, type = "states") # Call the OpenSky REST API with the constructed URL
+    flights = callOpenSkyRest(states_query, type = "states", verbose = verbose) # Call the OpenSky REST API with the constructed URL
 
     nearest_flight, distance = getNearestFlight(coords, flights)  # Get the nearest flight to the specified coordinates
 
@@ -57,7 +57,7 @@ def getBoxData(coords):
         }
     return flight_info  # Return the list of Flight objects retrieved from the API
 
-def callOpenSkyRest(api_url, type):
+def callOpenSkyRest(api_url, type, verbose):
     """This function calls the OpenSky REST API and returns the flight data."""
     token = get_token()  # Get the OpenSky API token
     headers = {
@@ -65,16 +65,26 @@ def callOpenSkyRest(api_url, type):
     }
     response = requests.get(api_url, headers=headers)
     if response.status_code == 200:
-        flight_data = response.json()
+        if response: 
+                
+            flight_data = response.json()
 
-        if type == "states":
-            result = processStatesData(flight_data) 
-        elif type == "aircraft":
-            result = processAircraftData(flight_data)
+            # Debugging output
+            if verbose > 0:
+                print(f"Retrieved {len(flight_data['states'])} flights from OpenSky API.")
+            elif verbose > 1:
+                print(f"Flight data: {flight_data}")
+            
+            # Process the flight data based on type
+            if type == "states":
+                result = processStatesData(flight_data) 
+            elif type == "aircraft":
+                result = processAircraftData(flight_data)
+            else:
+                raise ValueError("Invalid type specified. Use 'states' or 'aircraft'.")
+            return result
         else:
-            raise ValueError("Invalid type specified. Use 'states' or 'aircraft'.")
-        return result
-    
+            raise Exception("No data returned from OpenSky API.")
     else:
         raise Exception(f"Error fetching data from OpenSky API: {response.status_code}")
     

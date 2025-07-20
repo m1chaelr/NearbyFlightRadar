@@ -1,13 +1,14 @@
 # This is used to geocode the selected address into lat/long coordinates to show the flights that are above you
 
 # Imports
-import json
 import requests
+from configManager import configManager
 
-# Read the geocode API key from a JSON file
-with open('API/credentials.json') as f:
-    credentials = json.load(f)
-geocode_key = credentials['geocode_key']
+# Load the config
+config = configManager()
+
+# Get the API key
+geocode_key = config.get_value('geocodeKey')
 
 # Define the geocode API URL
 geocode_api_url = "https://geocode.maps.co/search"

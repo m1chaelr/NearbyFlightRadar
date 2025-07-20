@@ -3,17 +3,22 @@ import requests
 from bs4 import BeautifulSoup
 import re
 import json
+from configManager import configManager
 
-# Read the geocode API key from a JSON file
-with open('API/credentials.json') as f:
-    credentials = json.load(f)
-google_SE_Key = credentials['googleSEKey']
-google_SE_Id = credentials['googleSEId']
+# Load the config
+config = configManager()
 
-def googleSE(flight_callsign):
+# Retrieve keys
+google_SE_Key = config.get_value('googleSE', 'key')
+google_SE_Id = config.get_value('googleSE', 'id')
+
+def googleSE(flight_callsign, verbose):
 # Get the firsl result
     query = f"{flight_callsign}"
     url = f'https://www.googleapis.com/customsearch/v1?key={google_SE_Key}&cx={google_SE_Id}&q={query}'
+
+    if verbose > 0:
+        print("Querying Google Search Engine...")
 
     response = requests.get(url)
     search_results = response.json()
@@ -24,11 +29,14 @@ def googleSE(flight_callsign):
     travel_dict = extractHTMLFlightDetails(first_url)
     return travel_dict
 
+#TODO - If the flight is not a proper flight, it wont be on flight radar, this results in no values in the search engine 
 
 # Extract flight information from HTML
 def extractHTMLFlightDetails(url):
     """Extracts flight details from the HTML content of the given URL."""
-    print("Scraping URL:", url)
+
+    if verbose > 0:
+        print("Search Engine successfull...Scraping URL:", url)
 
     headers = {
         "User-Agent": "Mozilla/5.0"  # Simulate browser request
