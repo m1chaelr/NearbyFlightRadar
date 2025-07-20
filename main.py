@@ -18,7 +18,7 @@ address = {'street': config.get_value("address","street"),
            'country': config.get_value("address","country"),
            'postalcode': config.get_value("address","postalcode")}
 
-verbose = 1 # Set verbosity for debugging {0: no output, 1: basic output, 2: detailed output}
+verbose = 2 # Set verbosity for debugging {0: no output, 1: basic output, 2: detailed output}
 
 # Data retrieval (API)
 if verbose > 0:
@@ -31,6 +31,9 @@ flight_info = getBoxData(coords, verbose)  # Retrieve flight data within the bou
 flight_callsign = flight_info['callsign'].strip()
 flight_icao24 = flight_info['icao24']
 flight_typecode = aircraft_models.get(flight_icao24.strip().lower(), "Unknown") # Lookup aircraft model by ICAO24 code
+
+if verbose > 1:
+    print(f"The nearest flight is {flight_callsign}, which is a {flight_typecode}")
 
 # Data retrieval (Google PSE)
 travel_dict = googleSE(flight_callsign, verbose)
