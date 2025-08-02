@@ -10,7 +10,7 @@ config.py
 .env
 *.env
 *.secret
-API/
+config/
 aircraftDataset.csv
 
 # Ignore VS Code project settings

@@ -1,13 +1,13 @@
 import requests
-import json
+from configManager import configManager
+
+config = configManager()
 
 def get_token():
-    """Fetches the OpenSky API token from the credentials file."""
-    with open('API/credentials.json', 'r') as file:
-        credentials = json.load(file)
+    """Fetches the OpenSky API token"""
 
-    client_id = credentials.get('openSkyClientId')
-    client_secret = credentials.get('openSkyClientSecret')
+    client_id = config.get_value('openSky', 'client_id')
+    client_secret = config.get_value('openSky', 'client_secret')
 
     token_url = "https://auth.opensky-network.org/auth/realms/opensky-network/protocol/openid-connect/token"
     data = {
