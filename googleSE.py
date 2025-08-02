@@ -17,8 +17,8 @@ def googleSE(flight_callsign, verbose):
     query = f"{flight_callsign}"
     url = f'https://www.googleapis.com/customsearch/v1?key={google_SE_Key}&cx={google_SE_Id}&q={query}'
 
-    if verbose > 0:
-        print("Querying Google Search Engine...")
+    # if verbose > 0:
+    #     print("Querying Google Search Engine...")
 
     response = requests.get(url)
     search_results = response.json()
@@ -35,8 +35,8 @@ def googleSE(flight_callsign, verbose):
 def extractHTMLFlightDetails(url):
     """Extracts flight details from the HTML content of the given URL."""
 
-    if verbose > 0:
-        print("Search Engine successfull...Scraping URL:", url)
+    # if verbose > 0:
+    #     print("Search Engine successfull...Scraping URL:", url)
 
     headers = {
         "User-Agent": "Mozilla/5.0"  # Simulate browser request
