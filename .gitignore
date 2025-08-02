@@ -12,6 +12,7 @@ config.py
 *.secret
 config/
 aircraftDataset.csv
+open-sky/
 
 # Ignore VS Code project settings
 .vscode/
