@@ -1,9 +1,16 @@
 beautifulsoup4==4.13.4
+blinker==1.9.0
 certifi==2025.6.15
 charset-normalizer==3.4.2
+click==8.2.1
+Flask==3.1.1
 idna==3.10
--e git+https://github.com/m1chaelr/NearbyFlightRadar@4ab5a11bd62e1d0535b806f225c1e86f6d2803a1#egg=opensky_api
+itsdangerous==2.2.0
+Jinja2==3.1.6
+MarkupSafe==3.0.2
+-e git+https://github.com/m1chaelr/NearbyFlightRadar@a28d0944eddb218115478f13188368cc29892103#egg=opensky_api
 requests==2.32.4
 soupsieve==2.7
 typing_extensions==4.14.1
 urllib3==2.5.0
+Werkzeug==3.1.3
