@@ -32,19 +32,6 @@ def getFlightRadar():
     postalcode = "4032"
     address = {'street': street, 'city': city, 'state': state, 'country': country, 'postalcode': postalcode}  # Create a dictionary with the address components
 
-coords = getCoords(address)                # Geocoding
-flight_info = getBoxData(coords, verbose)  # Retrieve flight data within the bounding box
-
-# Data processing
-flight_callsign = flight_info['callsign'].strip()
-flight_icao24 = flight_info['icao24']
-flight_typecode = aircraft_models.get(flight_icao24.strip().lower(), "Unknown") # Lookup aircraft model by ICAO24 code
-
-if verbose > 1:
-    print(f"The nearest flight is {flight_callsign}, which is a {flight_typecode}")
-
-# Data retrieval (Google PSE)
-travel_dict = googleSE(flight_callsign, verbose)
     coords = getCoords(address)  # Get the coordinates for the specified address
     flight_info = getBoxData(coords)  # Example coordinates for the bounding box
     flight_callsign = flight_info['callsign']
