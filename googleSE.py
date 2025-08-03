@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 import re
 import json
 import os
-# from configManager import configManager
+from configManager import configManager
 
 # Load the config
 # config = configManager()

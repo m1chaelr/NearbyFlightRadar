@@ -1,6 +1,6 @@
 import requests
 import os
-# from configManager import configManager
+from configManager import configManager
 
 # config = configManager()
 

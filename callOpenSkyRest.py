@@ -28,22 +28,18 @@ def getBoxData(coords, verbose):
     states_query = flight_states_url + query # Construct the full API URL with the query parameters
     flights = callOpenSkyRest(states_query, type = "states", verbose = verbose) # Call the OpenSky REST API with the constructed URL
 
-    nearest_flight, distance = getNearestFlight(coords, flights)  # Get the nearest flight to the specified coordinates
+    flights_distance = getNearestFlight(coords, flights, verbose)  # Get the nearest flight to the specified coordinates
+    nearest_flight = flights_distance[0][0]
+    distance = flights_distance[0][1]
+
+    if verbose > 2:
+        print("The list of box-bounded flights are:")
+        for flight in flights_distance:
+            print(f"Flight Callsign: {flight[0].callsign} is at a distance {flight[1]} from coords {coords}")
 
     flight_info = None  # Initialize flight_info to None
 
     if nearest_flight:
-        icao24 = nearest_flight.icao24.strip().lower()
-        now = int(time.time())
-        half_ago = now - 1800 # 30 minutes ago
-
-        one_day_ago = now - 86400          # 24 hours ago
-        one_day_one_hour_ago = now - 90000 # 25 hours ago
-
-        # query = f"?icao24={icao24}&begin={one_day_one_hour_ago}&end={one_day_ago}"
-        # aircraft_query = flight_aircraft_url + query  # Construct the API URL for aircraft data
-        # result = callOpenSkyRest(aircraft_query, type = "aircraft") 
-
         flight_info = {
             "icao24": nearest_flight.icao24,
             "latitude": nearest_flight.latitude,
@@ -51,11 +47,9 @@ def getBoxData(coords, verbose):
             "velocity": nearest_flight.velocity,
             "callsign": nearest_flight.callsign,
             "squawk": nearest_flight.squawk,
-            "spi": nearest_flight.spi,
-            # "depAirport": nearest_flight.estDepartureAirport,
-            # "arrAirport": nearest_flight.estArrivalAirport,
+            "spi": nearest_flight.spi
         }
-    return flight_info  # Return the list of Flight objects retrieved from the API
+    return flights_distance  # Return the list of Flight objects retrieved from the API
 
 def callOpenSkyRest(api_url, type, verbose):
     """This function calls the OpenSky REST API and returns the flight data."""
@@ -143,18 +137,27 @@ def processStatesData(flight_data):
         flights.append(flight_obj)
     return flights  # Return the list of Flight objects
 
-def getNearestFlight(coords, flights):
+def getNearestFlight(coords, flights, verbose):
     """This function retrieves the nearest flight to the specified coordinates."""
     nearest_flight = None
     min_distance = float('inf') # Initialize minimum distance to infinity
 
+    flights_distance = []
+
     for flight in flights:
         if flight.latitude is not None and flight.longitude is not None:
+            
+            if verbose > 1:
+                print(f"Processing flight: {flight.callsign}, ICAO24: {flight.icao24}, Latitude: {flight.latitude}, Longitude: {flight.longitude}")
+
             # Calculate the Flight's Euclidean distance from the origin (home)
             distance = ((flight.latitude - coords[0]) ** 2 + (flight.longitude - coords[1]) ** 2) ** 0.5
             
+            flights_distance.append((flight, distance))
+
             # Store the closes flight
             if distance < min_distance:
                 min_distance = distance
                 nearest_flight = flight
-    return nearest_flight, distance  # Return the nearest Flight object
+    flights_distance.sort(key=lambda x: x[1])
+    return flights_distance  # Return the box bounded flights, sorted by distance

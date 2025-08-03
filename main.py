@@ -4,11 +4,12 @@ from callOpenSkyRest import getBoxData
 from geocodeData import getCoords 
 from googleSE import googleSE
 import os
-# from configManager import configManager
+from configManager import configManager
 
 def getFlightRadar():
     # Initialisation
-    aircraft_models = load_aircraft_data('aircraftDetailDataset.csv')  # Load aircraft data from the CSV file
+    aircraft_models = load_aircraft_data('aircraftDataset.csv')  # Load aircraft data from the CSV file
+    # aircraft_models = load_aircraft_data('aircraftDetailDataset.csv')  # Load aircraft data from the CSV file
     # config = configManager()                                     # Load config singleton
 
     # address = {'street': config.get_value("address","street"), 
@@ -30,15 +31,30 @@ def getFlightRadar():
         print(f"Retrieving nearest flight data for {address['street']}, {address['city']}, {address['state']}, {address['country']}, {address['postalcode']}...")
 
     coords = getCoords(address)                # Geocoding
-    flight_info = getBoxData(coords, verbose)  # Retrieve flight data within the bounding box
+    flights_distance = getBoxData(coords, verbose)  # Retrieve flight data within the bounding box
+
+    # Loop through the list of returned flights and return the closest flight with a valid typecode
+    flight_typecode = "Unknown"
+    i = 0
+    while flight_typecode == "Unknown":
+        flight_record = flights_distance[i]
+        flight_typecode = aircraft_models.get(flight_record[0].icao24.strip().lower(), "Unknown")
+        print(f"The flight: {flight_record[0].icao24} is a type: {flight_typecode}")
+        i += 1
+    
 
     # Data processing
-    flight_callsign = flight_info['callsign'].strip()
-    flight_icao24 = flight_info['icao24']
-    flight_typecode = aircraft_models.get(flight_icao24.strip().lower(), "Unknown") # Lookup aircraft model by ICAO24 code
+    flight_info = flight_record[0]
+    flight_callsign = flight_info.callsign.strip()
+    flight_distance = flight_record[1]
+    flight_lat = flight_info.latitude
+    flight_lon = flight_info.longitude
+    flight_vel = flight_info.velocity
+    flight_squawk = flight_info.squawk
+    flight_spi = flight_info.spi
 
     if verbose > 1:
-        print(f"The nearest flight is {flight_callsign}, which is a {flight_typecode}")
+        print(f"The nearest flight is {flight_callsign}, which is a {flight_typecode} and is {flight_distance} from {coords}")
 
     # Data retrieval (Google PSE)
     travel_dict = googleSE(flight_callsign, verbose)
@@ -46,12 +62,11 @@ def getFlightRadar():
     # Output
     if verbose > 0:
         print("The nearest flight to your location is:")
-        print(f"Flight {flight_callsign} is a {flight_typecode} and is currently at latitude {flight_info['latitude']} and longitude {flight_info['longitude']}.")
-        print(f"Velocity: {flight_info['velocity']} m/s, Squawk: {flight_info['squawk']}, SPI: {flight_info['spi']}")
+        print(f"Flight {flight_callsign} is a {flight_typecode} and is currently at latitude {flight_lat} and longitude {flight_lon}.")
+        print(f"Which is at a distance of: {flight_distance} from the origin")
+        print(f"Velocity: {flight_vel} m/s, Squawk: {flight_squawk}, SPI: {flight_spi}")
         print(f"Origin: {travel_dict['origin']}, Destination: {travel_dict['destination']}")
-
-    print(f"Runtime: {end - start:.4f} seconds")
     
-    output = {'callsign' : flight_callsign, 'typecode' : flight_typecode, 'origin' : travel_dict['origin'], 'destination' : travel_dict['destination'], 'velocity' : flight_info['velocity']}
+    output = {'callsign' : flight_callsign, 'typecode' : flight_typecode, 'origin' : travel_dict['origin'], 'destination' : travel_dict['destination'], 'velocity' : flight_vel, 'distance' : flight_distance}
 
     return output
