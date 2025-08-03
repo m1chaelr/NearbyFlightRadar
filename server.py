@@ -10,7 +10,8 @@ app = Flask(__name__)
 # Load the API key so only authenticated device can access the web-service
 API_KEY = os.environ.get("FLIGHT_RADAR_API_KEY")
 
-DATA_CACHE = "data.json"
+DATA_CACHE_PATH = "data.json"
+deploy_mode = 'web-service'
 
 
 # Background task for updating the cached data
@@ -19,22 +20,33 @@ def updateFlightData():
     Function to be run in the background. It fetches new flight data
     and saves it to a JSON file.
     """
+    global initial_data_ready
+
+    # Run the first data fetch immediately on startup
+    app.logger.info("Starting initial background data refresh...")
+    try:
+        flight_data = getFlightRadar(deploy_mode)
+        with open(DATA_CACHE_PATH, 'w') as file:
+            json.dump(flight_data, file)
+        app.logger.info("Initial background data refresh complete. Data saved to data.json")
+        initial_data_ready = True
+    except Exception as e:
+        app.logger.error(f"Error during initial data update: {e}")
+
+    # Then enter loop for subsequent updates
     while True:
-        app.logger.info("Starting background data refresh...")
+        time.sleep(30 * 60)
+        app.logger.info("Starting periodic background data refresh...")
         try:
             # Call the main function to get the latest flight data
-            deploy_mode = 'web-service'
             flight_data = getFlightRadar(deploy_mode)
 
             # Cache the data to a JSON file
-            with open(DATA_CACHE, 'w') as file:
+            with open(DATA_CACHE_PATH, 'w') as file:
                 json.dump(flight_data, file)
-            app.logger.info("Background data refresh complete. Data saved to data.json")
+            app.logger.info("Periodic background data refresh complete. Data saved to data.json")
         except Exception as e:
             app.logger.error(f"Error in the background data update: {e}")
-
-        # Wait for 30 minutes before refreshing data
-        time.sleep(30*60)
 
 # Flask Endpoint for cached data retrieval
 @app.route("/data")
@@ -51,14 +63,22 @@ def getData():
         # If not authenticated, return a 401 Unauthorized error
         abort(401, description="Unauthorized: Invalid API Key")
 
+    # Wait for the initial data to be ready, with a timeout
+    timeout_start = time.time()
+    app.logger.warning("Data file not found. Waiting until it's set")
+    while not initial_data_ready and (time.time() - timeout_start) < 60:
+        app.logger.warning("...")
+        time.sleep(1) # Wait a sec
+
     try:
         # Read the cached data from the JSON file
-        with open(DATA_CACHE, 'r') as file:
+        with open(DATA_CACHE_PATH, 'r') as file:
             flight_data = json.load(file)
         return jsonify(flight_data)
     except FileNotFoundError:
-        # Case where file has not been created yet
-        return jsonify({"error" : "Data not available yet. Please wait for initial refresh."}), 503
+        # If after waiting, the file still doesn't exist, something is wrong
+        app.logger.error("Data file not found after waiting. Background thread likely failed.")
+        return jsonify({"error" : "Data not available yet. Background task failed to initialise."}), 503
     except Exception as e:
         app.logger.error(f"An error occurred while reading the cached data: {e}")
         return jsonify({"error" : "Failed to retrieve cached data"}), 500
