@@ -1,30 +1,64 @@
-# This file is used to load aircraft data from a CSV file into a dictionary. 
-# It reads the CSV file and creates a mapping of ICAO24 codes to aircraft models.
 import csv
 import sys
 
 def load_aircraft_data(csv_path: str) -> dict:
-    """Load aircraft data from a CSV file into a dictionary."""
+    """
+    Loads aircraft data from a CSV file into a dictionary,
+    mapping ICAO24 codes to aircraft models.
+    
+    This function is designed to be resilient to malformed headers
+    or whitespace in the CSV file.
 
-    # csv.field_size_limit(sys.maxsize) # Increase the field size limit to handle large CSV file
-    csv.field_size_limit(2**31 - 1)  # Set the field size limit to the maximum possible value [Windows compatibility]
+    Args:
+        csv_path (str): The path to the CSV file.
+
+    Returns:
+        dict: A dictionary with ICAO24 codes (lowercase, no whitespace) as keys
+              and aircraft models as values.
+              Returns an empty dictionary if the file cannot be opened or
+              columns are missing.
+    """
+    # Set the field size limit to the maximum possible value to handle large files
+    csv.field_size_limit(2**31 - 1)
+    
     aircraft_data = {}
-    with open(csv_path, newline = '') as file:
-        reader = csv.DictReader(file)
-        for row in reader:
+    try:
+        with open(csv_path, newline='') as file:
+            reader = csv.reader(file)
+            
+            # Read and clean the header row
             try:
-                # Clean up keys by stripping single quotes & removing None values
-                cleaned_row = {(key.strip("'") if key else "") : (value.strip("'") if value else "")
-                            for key, value in row.items()
-                            if key is not None}
-                
-                # Read the ICAO24 code and airplane model
-                icao24 = cleaned_row['icao24'].strip().lower()
-                model = cleaned_row['model'].strip() if cleaned_row['model'] else "Unknown"
+                header = next(reader)
+                # Strip leading/trailing whitespace and single quotes from headers
+                cleaned_header = [h.strip().strip("'") for h in header]
 
-                # Store in the dictionary for lookup
-                aircraft_data[icao24] = model
+                # Find the indices for the 'icao24' and 'model' columns
+                icao24_index = cleaned_header.index('icao24')
+                model_index = cleaned_header.index('model')
 
-            except Exception as e:
-                print(f"Error processing row {row}: {e}")
+            except StopIteration:
+                print("Error: CSV file is empty.")
+                return {}
+            except ValueError:
+                print("Error: The CSV file must contain 'icao24' and 'model' columns.")
+                return {}
+
+            # Iterate through the remaining data rows
+            for row in reader:
+                if len(row) > max(icao24_index, model_index):
+                    try:
+                        # Access data by index, which is more reliable than by key
+                        icao24 = row[icao24_index].strip().strip("'").lower()
+                        model = row[model_index].strip().strip("'")
+                        
+                        # Only add to the dictionary if the ICAO24 code is not empty
+                        if icao24:
+                            aircraft_data[icao24] = model
+                    except IndexError as e:
+                        print(f"Skipping malformed row: {row}. Error: {e}")
+                        continue
+                        
+    except FileNotFoundError:
+        print(f"Error: The file {csv_path} was not found.")
+        
     return aircraft_data
