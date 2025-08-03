@@ -13,6 +13,11 @@ API_KEY = os.environ.get("FLIGHT_RADAR_API_KEY")
 DATA_CACHE_PATH = "data.json"
 deploy_mode = 'web-service'
 
+# A simple object to hold the global state flag, making it more robust
+class AppState:
+    initial_data_ready = False
+
+app_state = AppState()
 
 # Background task for updating the cached data
 def updateFlightData():
@@ -20,8 +25,6 @@ def updateFlightData():
     Function to be run in the background. It fetches new flight data
     and saves it to a JSON file.
     """
-    global initial_data_ready
-
     # Run the first data fetch immediately on startup
     app.logger.info("Starting initial background data refresh...")
     try:
@@ -29,7 +32,8 @@ def updateFlightData():
         with open(DATA_CACHE_PATH, 'w') as file:
             json.dump(flight_data, file)
         app.logger.info("Initial background data refresh complete. Data saved to data.json")
-        initial_data_ready = True
+        # Update the state flag on success
+        app_state.initial_data_ready = True
     except Exception as e:
         app.logger.error(f"Error during initial data update: {e}")
 
@@ -66,7 +70,8 @@ def getData():
     # Wait for the initial data to be ready, with a timeout
     timeout_start = time.time()
     app.logger.warning("Data file not found. Waiting until it's set")
-    while not initial_data_ready and (time.time() - timeout_start) < 60:
+    # Check the flag from the AppState object
+    while not app_state.initial_data_ready and (time.time() - timeout_start) < 60:
         app.logger.warning("...")
         time.sleep(1) # Wait a sec
 
