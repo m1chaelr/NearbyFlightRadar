@@ -7,6 +7,7 @@ __pycache__/
 
 # Ignore API keys and sensitive information
 config.py
+test.py
 .env
 *.env
 *.secret
