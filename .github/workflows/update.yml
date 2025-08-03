@@ -28,4 +28,4 @@ jobs:
         FLIGHT_RADAR_API_KEY: ${{ secrets.FLIGHT_RADAR_API_KEY }}
         RENDER_ENDPOINT_URL: ${{ secrets.RENDER_ENDPOINT_URL }}
       run: |
-        python update_and_upload.py
+        python updateAndUpload.py
