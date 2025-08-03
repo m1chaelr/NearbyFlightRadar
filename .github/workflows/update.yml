@@ -27,5 +27,13 @@ jobs:
       env:
         FLIGHT_RADAR_API_KEY: ${{ secrets.FLIGHT_RADAR_API_KEY }}
         RENDER_ENDPOINT_URL: ${{ secrets.RENDER_ENDPOINT_URL }}
+        STREET: ${{ secrets.STREET }}
+        CITY: ${{ secrets.CITY }}
+        COUNTRY: ${{ secrets.COUNTRY }}
+        GEOCODE_KEY: ${{ secrets.GEOCODE_KEY }}
+        GOOGLE_SE_ID: ${{ secrets.GOOGLE_SE_ID }}
+        GOOGLE_SE_KEY: ${{ secrets.GOOGLE_SE_KEY }}
+        OPENSKY_CLIENT_ID: ${{ secrets.OPENSKY_CLIENT_ID }}
+        OPENSKY_CLIENT_SECRET: ${{ secrets.OPENSKY_CLIENT_SECRET }}
       run: |
         python updateAndUpload.py
