@@ -122,7 +122,6 @@ def getData():
     except Exception as e:
         app.logger.error(f"An error occurred while retrieving flight data: {e}")
         return jsonify({"error" : "Failed to retrieve live data"}), 500
-
     
 if __name__ == "__main__":
     # The Flask application will run and handle requests.
