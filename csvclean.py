@@ -1,3 +1,5 @@
+# The original Aircraft dataset is too large for github (~106MB), however, 
+# there are about 100000 rows that have null typecodes and therefore not useful.
 # Script to clean a CSV file by removing rows with empty 'typecode' values
 import pandas as pd
 

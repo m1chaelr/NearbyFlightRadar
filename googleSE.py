@@ -3,14 +3,17 @@ import requests
 from bs4 import BeautifulSoup
 import re
 import json
+import os
 from configManager import configManager
 
 # Load the config
 config = configManager()
 
 # Retrieve keys
-google_SE_Key = config.get_value('googleSE', 'key')
-google_SE_Id = config.get_value('googleSE', 'id')
+# google_SE_Key = config.get_value('googleSE', 'key')
+# google_SE_Id = config.get_value('googleSE', 'id')
+google_SE_Key = os.environ.get('GOOGLE_SE_KEY')
+google_SE_Id = os.environ.get('GOOGLE_SE_ID')
 
 def googleSE(flight_callsign, verbose):
 # Get the firsl result

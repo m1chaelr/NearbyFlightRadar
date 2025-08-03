@@ -2,13 +2,15 @@
 
 # Imports
 import requests
+import os
 from configManager import configManager
 
 # Load the config
 config = configManager()
 
 # Get the API key
-geocode_key = config.get_value('geocodeKey')
+# geocode_key = config.get_value('geocodeKey')
+geocode_key = os.environ.get('GEOCODE_KEY')
 
 # Define the geocode API URL
 geocode_api_url = "https://geocode.maps.co/search"

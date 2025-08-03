@@ -3,6 +3,7 @@ from aircraftData import load_aircraft_data
 from callOpenSkyRest import getBoxData
 from geocodeData import getCoords 
 from googleSE import googleSE
+import os
 from configManager import configManager
 
 def getFlightRadar():
@@ -10,11 +11,17 @@ def getFlightRadar():
     aircraft_models = load_aircraft_data('aircraftDetailDataset.csv')  # Load aircraft data from the CSV file
     config = configManager()                                     # Load config singleton
 
-    address = {'street': config.get_value("address","street"), 
-            'city': config.get_value("address","city"),
-            'state': config.get_value("address","state"),
-            'country': config.get_value("address","country"),
-            'postalcode': config.get_value("address","postalcode")}
+    # address = {'street': config.get_value("address","street"), 
+    #         'city': config.get_value("address","city"),
+    #         'state': config.get_value("address","state"),
+    #         'country': config.get_value("address","country"),
+    #         'postalcode': config.get_value("address","postalcode")}
+
+    address = {'street': os.environ.get('STREET'), 
+            'city': os.environ.get('CITY'),
+            'state': os.environ.get('STATE'),
+            'country': os.environ.get('COUNTRY'),
+            'postalcode': os.environ.get('POSTALCODE')}
 
     verbose = 2 # Set verbosity for debugging {0: no output, 1: basic output, 2: detailed output}
 
