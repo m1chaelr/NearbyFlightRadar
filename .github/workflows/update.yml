@@ -30,6 +30,8 @@ jobs:
         STREET: ${{ secrets.STREET }}
         CITY: ${{ secrets.CITY }}
         COUNTRY: ${{ secrets.COUNTRY }}
+        STATE: ${{ secrets.STATE }}
+        POSTALCODE: ${{ secrets.POSTALCODE }}
         GEOCODE_KEY: ${{ secrets.GEOCODE_KEY }}
         GOOGLE_SE_ID: ${{ secrets.GOOGLE_SE_ID }}
         GOOGLE_SE_KEY: ${{ secrets.GOOGLE_SE_KEY }}
