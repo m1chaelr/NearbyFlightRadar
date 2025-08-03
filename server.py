@@ -52,55 +52,77 @@ def updateFlightData():
             app.logger.error(f"Error in the background data update: {e}")
 
 # Flask Endpoint for cached data retrieval
+# @app.route("/data")
+# def getData():
+#     """
+#     An authenticated endpoint to get flight data for TRMNL Polling. 
+#     It retrieves cached data from data.json and returns instantly. Requires API auth key
+#     """
+#     # Get the API key from the request header
+#     provided_key = request.headers.get("X-API-KEY")
+
+#     # Check if the provided key matches the configured key
+#     if not provided_key or provided_key != API_KEY:
+#         # If not authenticated, return a 401 Unauthorized error
+#         abort(401, description="Unauthorized: Invalid API Key")
+
+#     try:
+#         # Attempt to read the cached data from the JSON file
+#         with open(DATA_CACHE_PATH, 'r') as file:
+#             flight_data = json.load(file)
+#         return jsonify(flight_data)
+#     except FileNotFoundError:
+#         # If the file is not found, it means the cache is not ready.
+#         # This is where we initiate the background data fetch.
+#         app.logger.warning("Data file not found. Starting background refresh and waiting.")
+        
+#         # Start the background thread to fetch data, if it's not already running.
+#         # This is a one-time trigger for the current worker.
+#         if not app_state.initial_data_ready:
+#              background_thread = threading.Thread(target=updateFlightData, daemon=True)
+#              background_thread.start()
+
+#         # Wait for the initial data to be ready, with a timeout
+#         timeout_start = time.time()
+#         while not app_state.initial_data_ready and (time.time() - timeout_start) < 60:
+#             app.logger.warning("...")
+#             time.sleep(1) # Wait a sec
+
+#         # Try to read the file again after the wait
+#         try:
+#             with open(DATA_CACHE_PATH, 'r') as file:
+#                 flight_data = json.load(file)
+#             return jsonify(flight_data)
+#         except FileNotFoundError:
+#             # If after waiting, the file still doesn't exist, something is wrong
+#             app.logger.error("Data file not found after waiting. Background thread likely failed.")
+#             return jsonify({"error" : "Data not available yet. Background task failed to initialise."}), 503
+        
+#     except Exception as e:
+#         app.logger.error(f"An error occurred while reading the cached data: {e}")
+#         return jsonify({"error" : "Failed to retrieve cached data"}), 500
+    
+
 @app.route("/data")
 def getData():
     """
     An authenticated endpoint to get flight data for TRMNL Polling. 
-    It retrieves cached data from data.json and returns instantly. Requires API auth key
+    For now, it fetches live data on each call rather than relying on a cached JSON file.
     """
-    # Get the API key from the request header
     provided_key = request.headers.get("X-API-KEY")
 
-    # Check if the provided key matches the configured key
     if not provided_key or provided_key != API_KEY:
-        # If not authenticated, return a 401 Unauthorized error
         abort(401, description="Unauthorized: Invalid API Key")
 
     try:
-        # Attempt to read the cached data from the JSON file
-        with open(DATA_CACHE_PATH, 'r') as file:
-            flight_data = json.load(file)
+        # TEMPORARY: Directly call getFlightRadar instead of using the cache file
+        flight_data = getFlightRadar(deploy_mode)
         return jsonify(flight_data)
-    except FileNotFoundError:
-        # If the file is not found, it means the cache is not ready.
-        # This is where we initiate the background data fetch.
-        app.logger.warning("Data file not found. Starting background refresh and waiting.")
-        
-        # Start the background thread to fetch data, if it's not already running.
-        # This is a one-time trigger for the current worker.
-        if not app_state.initial_data_ready:
-             background_thread = threading.Thread(target=updateFlightData, daemon=True)
-             background_thread.start()
-
-        # Wait for the initial data to be ready, with a timeout
-        timeout_start = time.time()
-        while not app_state.initial_data_ready and (time.time() - timeout_start) < 60:
-            app.logger.warning("...")
-            time.sleep(1) # Wait a sec
-
-        # Try to read the file again after the wait
-        try:
-            with open(DATA_CACHE_PATH, 'r') as file:
-                flight_data = json.load(file)
-            return jsonify(flight_data)
-        except FileNotFoundError:
-            # If after waiting, the file still doesn't exist, something is wrong
-            app.logger.error("Data file not found after waiting. Background thread likely failed.")
-            return jsonify({"error" : "Data not available yet. Background task failed to initialise."}), 503
-        
+    
     except Exception as e:
-        app.logger.error(f"An error occurred while reading the cached data: {e}")
-        return jsonify({"error" : "Failed to retrieve cached data"}), 500
+        app.logger.error(f"An error occurred while retrieving flight data: {e}")
+        return jsonify({"error" : "Failed to retrieve live data"}), 500
+
     
 if __name__ == "__main__":
     # The Flask application will run and handle requests.
