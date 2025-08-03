@@ -4,12 +4,12 @@ from callOpenSkyRest import getBoxData
 from geocodeData import getCoords 
 from googleSE import googleSE
 import os
-from configManager import configManager
+# from configManager import configManager
 
 def getFlightRadar():
     # Initialisation
     aircraft_models = load_aircraft_data('aircraftDetailDataset.csv')  # Load aircraft data from the CSV file
-    config = configManager()                                     # Load config singleton
+    # config = configManager()                                     # Load config singleton
 
     # address = {'street': config.get_value("address","street"), 
     #         'city': config.get_value("address","city"),

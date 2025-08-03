@@ -3,10 +3,10 @@
 # Imports
 import requests
 import os
-from configManager import configManager
+# from configManager import configManager
 
 # Load the config
-config = configManager()
+# config = configManager()
 
 # Get the API key
 # geocode_key = config.get_value('geocodeKey')

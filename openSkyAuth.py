@@ -1,8 +1,8 @@
 import requests
 import os
-from configManager import configManager
+# from configManager import configManager
 
-config = configManager()
+# config = configManager()
 
 def get_token():
     """Fetches the OpenSky API token"""

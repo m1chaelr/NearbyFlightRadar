@@ -4,10 +4,10 @@ from bs4 import BeautifulSoup
 import re
 import json
 import os
-from configManager import configManager
+# from configManager import configManager
 
 # Load the config
-config = configManager()
+# config = configManager()
 
 # Retrieve keys
 # google_SE_Key = config.get_value('googleSE', 'key')
