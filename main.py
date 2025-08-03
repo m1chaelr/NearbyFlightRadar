@@ -1,5 +1,3 @@
-import time
-start = time.perf_counter()
 # Function imports
 from aircraftData import load_aircraft_data
 from callOpenSkyRest import getBoxData
@@ -9,7 +7,7 @@ from configManager import configManager
 
 def getFlightRadar():
     # Initialisation
-    aircraft_models = load_aircraft_data('aircraftDataset.csv')  # Load aircraft data from the CSV file
+    aircraft_models = load_aircraft_data('aircraftDetailDataset.csv')  # Load aircraft data from the CSV file
     config = configManager()                                     # Load config singleton
 
     address = {'street': config.get_value("address","street"), 
@@ -45,7 +43,6 @@ def getFlightRadar():
         print(f"Velocity: {flight_info['velocity']} m/s, Squawk: {flight_info['squawk']}, SPI: {flight_info['spi']}")
         print(f"Origin: {travel_dict['origin']}, Destination: {travel_dict['destination']}")
 
-    end = time.perf_counter()
     print(f"Runtime: {end - start:.4f} seconds")
     
     output = {'callsign' : flight_callsign, 'typecode' : flight_typecode, 'origin' : travel_dict['origin'], 'destination' : travel_dict['destination'], 'velocity' : flight_info['velocity']}

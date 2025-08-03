@@ -4,8 +4,13 @@ certifi==2025.6.15
 charset-normalizer==3.4.2
 click==8.2.1
 Flask==3.1.1
+gunicorn==23.0.0
 idna==3.10
--e git+https://github.com/m1chaelr/NearbyFlightRadar@a28d0944eddb218115478f13188368cc29892103#egg=opensky_api
+itsdangerous==2.2.0
+Jinja2==3.1.6
+MarkupSafe==3.0.2
+-e git+https://github.com/m1chaelr/NearbyFlightRadar@2b282262cf4ccf74ca3ec4a9e1ca0b180b04d91b#egg=opensky_api
+packaging==25.0
 requests==2.32.4
 soupsieve==2.7
 typing_extensions==4.14.1
