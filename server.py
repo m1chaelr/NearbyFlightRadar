@@ -5,8 +5,9 @@ app = Flask(__name__)
 
 @app.route("/data")
 def get_data():
+    deploy_mode = 'web-service'
     try:
-        flight_data = getFlightRadar()
+        flight_data = getFlightRadar(deploy_mode)
         return jsonify(flight_data)
     except Exception as e:
         return jsonify({"error": str(e)}), 500

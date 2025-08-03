@@ -6,32 +6,34 @@ from googleSE import googleSE
 import os
 from configManager import configManager
 
-def getFlightRadar():
+def getFlightRadar(deploy_mode):
     # Initialisation
-    aircraft_models = load_aircraft_data('aircraftDataset.csv')  # Load aircraft data from the CSV file
-    # aircraft_models = load_aircraft_data('aircraftDetailDataset.csv')  # Load aircraft data from the CSV file
-    # config = configManager()                                     # Load config singleton
+    aircraft_models = load_aircraft_data('aircraftDetailDataset.csv')  # Load aircraft data from the CSV file
 
-    # address = {'street': config.get_value("address","street"), 
-    #         'city': config.get_value("address","city"),
-    #         'state': config.get_value("address","state"),
-    #         'country': config.get_value("address","country"),
-    #         'postalcode': config.get_value("address","postalcode")}
-
-    address = {'street': os.environ.get('STREET'), 
-            'city': os.environ.get('CITY'),
-            'state': os.environ.get('STATE'),
-            'country': os.environ.get('COUNTRY'),
-            'postalcode': os.environ.get('POSTALCODE')}
-
-    verbose = 2 # Set verbosity for debugging {0: no output, 1: basic output, 2: detailed output}
+    # Read the specified deploy mode and load environment variables respectively
+    match deploy_mode:
+        case 'web-service':
+            address = {'street': os.environ.get('STREET'), 
+                'city': os.environ.get('CITY'),
+                'state': os.environ.get('STATE'),
+                'country': os.environ.get('COUNTRY'),
+                'postalcode': os.environ.get('POSTALCODE')}
+        case 'local-host':
+            config = configManager() # Load config singleton
+            address = {'street': config.get_value("address","street"), 
+                'city': config.get_value("address","city"),
+                'state': config.get_value("address","state"),
+                'country': config.get_value("address","country"),
+                'postalcode': config.get_value("address","postalcode")}
+            
+    verbose = 1 # Set verbosity for debugging {0: no output, 1: basic output, 2: detailed output}
 
     # Data retrieval (API)
     if verbose > 0:
         print(f"Retrieving nearest flight data for {address['street']}, {address['city']}, {address['state']}, {address['country']}, {address['postalcode']}...")
 
-    coords = getCoords(address)                # Geocoding
-    flights_distance = getBoxData(coords, verbose)  # Retrieve flight data within the bounding box
+    coords = getCoords(address, deploy_mode)                # Geocoding
+    flights_distance = getBoxData(coords, verbose, deploy_mode)  # Retrieve flight data within the bounding box
 
     # Loop through the list of returned flights and return the closest flight with a valid typecode
     flight_typecode = "Unknown"
@@ -57,7 +59,7 @@ def getFlightRadar():
         print(f"The nearest flight is {flight_callsign}, which is a {flight_typecode} and is {flight_distance} from {coords}")
 
     # Data retrieval (Google PSE)
-    travel_dict = googleSE(flight_callsign, verbose)
+    travel_dict = googleSE(flight_callsign, verbose, deploy_mode)
 
     # Output
     if verbose > 0:

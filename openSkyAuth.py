@@ -2,15 +2,17 @@ import requests
 import os
 from configManager import configManager
 
-# config = configManager()
-
-def get_token():
+def get_token(deploy_mode):
     """Fetches the OpenSky API token"""
 
-    # client_id = config.get_value('openSky', 'client_id')
-    # client_secret = config.get_value('openSky', 'client_secret')
-    client_id = os.environ.get('OPENSKY_CLIENT_ID')
-    client_secret = os.environ.get('OPENSKY_CLIENT_SECRET')
+    match deploy_mode:
+        case 'web-service':
+            client_id = os.environ.get('OPENSKY_CLIENT_ID')
+            client_secret = os.environ.get('OPENSKY_CLIENT_SECRET')
+        case 'local-host':
+            config = configManager() # Load config singleton
+            client_id = config.get_value('openSky', 'client_id')
+            client_secret = config.get_value('openSky', 'client_secret')
 
     token_url = "https://auth.opensky-network.org/auth/realms/opensky-network/protocol/openid-connect/token"
     data = {

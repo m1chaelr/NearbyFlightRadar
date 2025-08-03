@@ -4,20 +4,20 @@
 import requests
 import os
 from configManager import configManager
-
-# Load the config
-# config = configManager()
-
-# Get the API key
-# geocode_key = config.get_value('geocodeKey')
-geocode_key = os.environ.get('GEOCODE_KEY')
-
+            
 # Define the geocode API URL
 geocode_api_url = "https://geocode.maps.co/search"
 
 # Define Functions
-def getCoords(address: str) -> tuple:
+def getCoords(address: str, deploy_mode) -> tuple:
     """This function retrieves the latitude and longitude for a given address."""
+
+    match deploy_mode:
+        case 'web-service':
+            geocode_key = os.environ.get('GEOCODE_KEY')
+        case 'local-host':
+            config = configManager() # Load config singleton
+            geocode_key = config.get_value('geocodeKey')
 
     # Read coordinates from the address dictionary
     street = address.get("street", "").replace(" ", "+")

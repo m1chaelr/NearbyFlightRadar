@@ -4,19 +4,22 @@ from bs4 import BeautifulSoup
 import re
 import json
 import os
-from configManager import configManager
+from configManager import configManager   
 
-# Load the config
-# config = configManager()
 
-# Retrieve keys
-# google_SE_Key = config.get_value('googleSE', 'key')
-# google_SE_Id = config.get_value('googleSE', 'id')
-google_SE_Key = os.environ.get('GOOGLE_SE_KEY')
-google_SE_Id = os.environ.get('GOOGLE_SE_ID')
 
-def googleSE(flight_callsign, verbose):
-# Get the firsl result
+def googleSE(flight_callsign, verbose, deploy_mode):
+
+    match deploy_mode:
+        case 'web-service':
+            google_SE_Key = os.environ.get('GOOGLE_SE_KEY')
+            google_SE_Id = os.environ.get('GOOGLE_SE_ID')
+        case 'local-host':
+            config = configManager() # Load config singleton
+            google_SE_Key = config.get_value('googleSE', 'key')
+            google_SE_Id = config.get_value('googleSE', 'id')
+            
+    # Get the first result
     query = f"{flight_callsign}"
     url = f'https://www.googleapis.com/customsearch/v1?key={google_SE_Key}&cx={google_SE_Id}&q={query}'
 

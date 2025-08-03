@@ -14,7 +14,7 @@ def testCallOpenSkyRest():
     result = callOpenSkyRest(temp_url, type = "aircraft")
     print(result)  # Print the number of flights retrieved from the API
 
-def getBoxData(coords, verbose):
+def getBoxData(coords, verbose, deploy_mode):
     """This function retrieves flight data within a specified bounding box."""
     lat = coords[0]
     lamin = lat - 0.5
@@ -26,7 +26,7 @@ def getBoxData(coords, verbose):
 
     query = f"?lamin={lamin}&lomin={lomin}&lamax={lamax}&lomax={lomax}" # Construct the query parameters
     states_query = flight_states_url + query # Construct the full API URL with the query parameters
-    flights = callOpenSkyRest(states_query, type = "states", verbose = verbose) # Call the OpenSky REST API with the constructed URL
+    flights = callOpenSkyRest(states_query, type = "states", verbose = verbose, deploy_mode = deploy_mode) # Call the OpenSky REST API with the constructed URL
 
     flights_distance = getNearestFlight(coords, flights, verbose)  # Get the nearest flight to the specified coordinates
     nearest_flight = flights_distance[0][0]
@@ -51,9 +51,9 @@ def getBoxData(coords, verbose):
         }
     return flights_distance  # Return the list of Flight objects retrieved from the API
 
-def callOpenSkyRest(api_url, type, verbose):
+def callOpenSkyRest(api_url, type, verbose, deploy_mode):
     """This function calls the OpenSky REST API and returns the flight data."""
-    token = get_token()  # Get the OpenSky API token
+    token = get_token(deploy_mode)  # Get the OpenSky API token
     headers = {
         "Authorization": f"Bearer {token}"
     }
@@ -147,7 +147,7 @@ def getNearestFlight(coords, flights, verbose):
     for flight in flights:
         if flight.latitude is not None and flight.longitude is not None:
             
-            if verbose > 1:
+            if verbose > 2:
                 print(f"Processing flight: {flight.callsign}, ICAO24: {flight.icao24}, Latitude: {flight.latitude}, Longitude: {flight.longitude}")
 
             # Calculate the Flight's Euclidean distance from the origin (home)
