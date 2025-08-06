@@ -72,7 +72,7 @@ def getFlightRadar(deploy_mode):
         print(f"Origin: {travel_dict['origin']}, Destination: {travel_dict['destination']}")
     
     # Store the current time in Brisbane
-    timezone = ZoneInfo(f'Australia/{address['city']}')
+    timezone = ZoneInfo(f"Australia/{address['city']}")
     now = datetime.now(timezone)
     current_time = now.strftime("%H:%M %d %B %Y")
 
