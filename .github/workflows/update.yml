@@ -1,9 +1,9 @@
-name: Update Flight Data V2
+name: Update FlightRadar TRMNL
 
 on:
   schedule:
-    - cron: '*/15 * * * *'  # Every 15 minutes (UTC)
-  workflow_dispatch:  # Allows you to run it manually
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
 
 jobs:
   update-flight-data:

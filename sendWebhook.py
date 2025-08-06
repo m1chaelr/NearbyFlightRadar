@@ -29,17 +29,18 @@ if not STATE:
     exit(1)
 
 try:
+    # Retrieve updated flight data
     print("Fetching flight data...")
-    # Pass the address and mode to the data fetching function
     data = getFlightRadar('web-service')
     print("Flight data fetched successfully.")
 
-    # Prepare the POST request headers and payload
+    # Send POST request
     headers = {
         "Content-Type": "application/json"
     }
-
-    body = {"merge_variables": data}
+    body = {
+        "merge_variables": data
+    }
 
     payload_size = len(json.dumps(body))
 

@@ -5,6 +5,8 @@ from geocodeData import getCoords
 from googleSE import googleSE
 import os
 from configManager import configManager
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 def getFlightRadar(deploy_mode):
     # Initialisation
@@ -62,13 +64,26 @@ def getFlightRadar(deploy_mode):
     travel_dict = googleSE(flight_callsign, verbose, deploy_mode)
 
     # Output
-    if verbose > 0:
+    if verbose > 1:
         print("The nearest flight to your location is:")
         print(f"Flight {flight_callsign} is a {flight_typecode} and is currently at latitude {flight_lat} and longitude {flight_lon}.")
         print(f"Which is at a distance of: {flight_distance} from the origin")
         print(f"Velocity: {flight_vel} m/s, Squawk: {flight_squawk}, SPI: {flight_spi}")
         print(f"Origin: {travel_dict['origin']}, Destination: {travel_dict['destination']}")
     
-    output = {'callsign' : flight_callsign, 'typecode' : flight_typecode, 'origin' : travel_dict['origin'], 'destination' : travel_dict['destination'], 'velocity' : flight_vel, 'distance' : flight_distance}
+    # Store the current time in Brisbane
+    timezone = ZoneInfo(f'Australia/{address['city']}')
+    now = datetime.now(timezone)
+    current_time = now.strftime("%H:%M %d %B %Y")
+
+    # Store dictionary output
+    output = {'callsign' : flight_callsign,
+              'typecode' : flight_typecode,
+              'origin' : travel_dict['origin'],
+              'destination' : travel_dict['destination'],
+              'velocity' : flight_vel,
+              'distance' : flight_distance,
+              'updated_at' : current_time
+            }
 
     return output
