@@ -1,5 +1,3 @@
-# This script is used to call the flight data API and process the response.
-
 import requests
 from flight import Flight  # Import the Flight class to create flight objects
 from openSkyAuth import get_token  # Import the function to get the OpenSky API token
@@ -9,14 +7,9 @@ from math import cos, sin
 flight_states_url = "https://opensky-network.org/api/states/all" # Base URL for the OpenSky Network API
 flight_aircraft_url = "https://opensky-network.org/api/flights/aircraft"
 
-temp_url = "https://opensky-network.org/api/flights/all?begin=1517227200&end=1517230800"
-
-def testCallOpenSkyRest():
-    result = callOpenSkyRest(temp_url, type = "aircraft")
-    print(result)  # Print the number of flights retrieved from the API
-
 def getBoxData(coords, verbose, deploy_mode):
     """This function retrieves flight data within a specified bounding box."""
+    # Create box around coordinates
     lat = coords[0]
     lamin = lat - 0.5
     lamax = lat + 0.5
@@ -25,35 +18,25 @@ def getBoxData(coords, verbose, deploy_mode):
     lomin = lon - 0.5
     lomax = lon + 0.5
 
-    query = f"?lamin={lamin}&lomin={lomin}&lamax={lamax}&lomax={lomax}" # Construct the query parameters
-    states_query = flight_states_url + query # Construct the full API URL with the query parameters
-    flights = callOpenSkyRest(states_query, type = "states", verbose = verbose, deploy_mode = deploy_mode) # Call the OpenSky REST API with the constructed URL
+    #  Construct Query and call OpenSky States API
+    query = f"?lamin={lamin}&lomin={lomin}&lamax={lamax}&lomax={lomax}"
+    states_api_query = flight_states_url + query
+    flights = callOpenSkyRest(states_api_query, type = "states", verbose = verbose, deploy_mode = deploy_mode)
 
-    flights_distance = getNearestFlight(coords, flights, verbose)  # Get the nearest flight to the specified coordinates
-    nearest_flight = flights_distance[0][0]
-    distance = flights_distance[0][1]
+    flights_by_distance = getNearestFlight(coords, flights, verbose)  # Get the nearest flight to the specified coordinates
 
-    if verbose > 2:
+    if verbose > 1:
         print("The list of box-bounded flights are:")
-        for flight in flights_distance:
-            print(f"Flight Callsign: {flight[0].callsign} is at a distance {flight[1]} from coords {coords}")
+        for flight in flights_by_distance:
+            print(f"Flight Callsign: {flight[0].callsign} with icao24: {flight[0].icao24} a distance {flight[1]} from coords")
 
-    flight_info = None  # Initialize flight_info to None
-
-    if nearest_flight:
-        flight_info = {
-            "icao24": nearest_flight.icao24,
-            "latitude": nearest_flight.latitude,
-            "longitude": nearest_flight.longitude,
-            "velocity": nearest_flight.velocity,
-            "callsign": nearest_flight.callsign,
-            "squawk": nearest_flight.squawk,
-            "spi": nearest_flight.spi
-        }
-    return flights_distance  # Return the list of Flight objects retrieved from the API
+    return flights_by_distance
 
 def callOpenSkyRest(api_url, type, verbose, deploy_mode):
     """This function calls the OpenSky REST API and returns the flight data."""
+    if verbose > 0:
+        print("Calling OpenSky REST API with constructed box-bound query...")
+        
     token = get_token(deploy_mode)  # Get the OpenSky API token
     headers = {
         "Authorization": f"Bearer {token}"
@@ -61,14 +44,13 @@ def callOpenSkyRest(api_url, type, verbose, deploy_mode):
     response = requests.get(api_url, headers=headers)
     if response.status_code == 200:
         if response: 
-                
             flight_data = response.json()
 
             # Debugging output
             if verbose > 0:
                 print(f"Retrieved {len(flight_data['states'])} flights from OpenSky API.")
             elif verbose > 1:
-                print(f"Flight data: {flight_data}")
+                print(f"Box-Bounded Flight Data: {flight_data}")
             
             # Process the flight data based on type
             if type == "states":
@@ -164,6 +146,7 @@ def getNearestFlight(coords, flights, verbose):
             flight_y_pos = earth_R * cos(flight.latitude) * sin(flight.longitude)
             flight_vector = (flight_x_pos, flight_y_pos)
             polar_distance = ((coords_vector[0] - flight_vector[0]) ** 2 + (coords_vector[1] - flight_vector[1]) ** 2) ** 0.5
+            
 
             # Store Flight and distance to origin
             flights_distance.append((flight, polar_distance))

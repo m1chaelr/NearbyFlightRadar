@@ -10,6 +10,7 @@ API_KEY = os.environ.get('FLIGHT_RADAR_API_KEY')
 ENDPOINT = os.environ.get('TRMNL_ENDPOINT_URL')
 STREET = os.environ.get('STREET')
 STATE = os.environ.get('STATE')
+verbose = 2 # Verbosity {0: no output, 1: Basic Process Flow, 2: Debugging - All}
 
 # Check if required environment variables are set
 if not API_KEY:
@@ -31,7 +32,7 @@ if not STATE:
 try:
     # Retrieve updated flight data
     print("Fetching flight data...")
-    data = getFlightRadar('web-service')
+    data = getFlightRadar('web-service', verbose)
     print("Flight data fetched successfully.")
 
     # Send POST request
