@@ -82,7 +82,7 @@ def getFlightRadar(deploy_mode):
               'origin' : travel_dict['origin'],
               'destination' : travel_dict['destination'],
               'velocity' : flight_vel,
-              'distance' : flight_distance,
+              'distance' : format(flight_distance, '.2f'),
               'updated_at' : current_time
             }
 
