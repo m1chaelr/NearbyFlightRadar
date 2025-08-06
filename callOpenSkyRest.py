@@ -4,6 +4,7 @@ import requests
 from flight import Flight  # Import the Flight class to create flight objects
 from openSkyAuth import get_token  # Import the function to get the OpenSky API token
 import time
+from math import cos, sin
 
 flight_states_url = "https://opensky-network.org/api/states/all" # Base URL for the OpenSky Network API
 flight_aircraft_url = "https://opensky-network.org/api/flights/aircraft"
@@ -141,6 +142,8 @@ def getNearestFlight(coords, flights, verbose):
     """This function retrieves the nearest flight to the specified coordinates."""
     nearest_flight = None
     min_distance = float('inf') # Initialize minimum distance to infinity
+    earth_R = 6378 # Earth's radius in Km's
+    # coord_x_pos
 
     flights_distance = []
 
@@ -153,6 +156,12 @@ def getNearestFlight(coords, flights, verbose):
             # Calculate the Flight's Euclidean distance from the origin (home)
             distance = ((flight.latitude - coords[0]) ** 2 + (flight.longitude - coords[1]) ** 2) ** 0.5
             
+            # TODO: Calculate the Polar distance
+            # flight_x_pos = earth_R * cos(flight.latitude) * cos(flight.longitude)
+            # flight_y_pos = earth_R * cos(flight.latitude) * sin(flight.longitude)
+            # flight_vector = (flight_x_pos, flight_y_pos)
+            # distance = 
+
             flights_distance.append((flight, distance))
 
             # Store the closes flight
