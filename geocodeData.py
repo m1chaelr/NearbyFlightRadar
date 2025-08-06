@@ -1,6 +1,3 @@
-# This is used to geocode the selected address into lat/long coordinates to show the flights that are above you
-
-# Imports
 import requests
 import os
 from configManager import configManager
@@ -9,39 +6,43 @@ from configManager import configManager
 geocode_api_url = "https://geocode.maps.co/search"
 
 # Define Functions
-def getCoords(address: str, deploy_mode) -> tuple:
+def getCoords(address: str, deploy_mode, verbose) -> tuple:
     """This function retrieves the latitude and longitude for a given address."""
+
+    if verbose > 0:
+        print("Geocoding home-set address into coordinates...")
 
     match deploy_mode:
         case 'web-service':
             geocode_key = os.environ.get('GEOCODE_KEY')
         case 'local-host':
-            config = configManager() # Load config singleton
+            config = configManager()
             geocode_key = config.get_value('geocodeKey')
 
-    # Read coordinates from the address dictionary
+    # Load address into API query
     street = address.get("street", "").replace(" ", "+")
     city = address.get("city", "").replace(" ", "+")
     state = address.get("state", "").replace(" ", "+")
     country = address.get("country", "").replace(" ", "+")
     postalcode = address.get("postalcode", "")
 
-    # Construct the query
-    query_url = f"?street={street}&city={city}&state={state}&postalcode={postalcode}&country={country}&api_key={geocode_key}"  # Construct the query parameters with the address and API key
-    api_url_with_query = geocode_api_url + query_url  # Construct the full API
+    query_url = f"?street={street}&city={city}&state={state}&postalcode={postalcode}&country={country}&api_key={geocode_key}"
+    api_url_with_query = geocode_api_url + query_url
 
     # Make the API request
-    response = requests.get(api_url_with_query)
-    if response.status_code == 200:
+    try:
+        response = requests.get(api_url_with_query)
+        response.raise_for_status()  # Raise an error for bad responses
         geocode_data = response.json()
-        if geocode_data:  # Check if results exist
+        if geocode_data:
             lat = geocode_data[0].get("lat")
             lon = geocode_data[0].get("lon")
-            coords = (float(lat), float(lon))  # Create a dictionary with latitude and longitude
+            coords = (float(lat), float(lon))
             return coords
         else:
-            print("No geocoding results found.")
+            print(f"No geocoding results found. Status code: {response.status_code}")
             return None
-    else:
-        print(f"Geocoding request failed with status code: {response.status_code}")
+
+    except requests.exceptions.RequestException as e:
+        print(f"Error making geocoding request: {e}")
         return None
