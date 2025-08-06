@@ -84,6 +84,9 @@ def getFlightRadar(deploy_mode, verbose):
         travel_dict = {'origin' : 'N/A',
                        'destination' : 'N/A'
                     }
+        
+    if flight_typecode in ["''", ""]:
+        flight_typecode = "Unknown"
 
     # Data processing
     if verbose > 0:
