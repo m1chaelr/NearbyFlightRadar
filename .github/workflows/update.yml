@@ -26,7 +26,7 @@ jobs:
     - name: Run update script
       env:
         FLIGHT_RADAR_API_KEY: ${{ secrets.FLIGHT_RADAR_API_KEY }}
-        RENDER_ENDPOINT_URL: ${{ secrets.TRMNL_ENDPOINT_URL }}
+        TRMNL_ENDPOINT_URL: ${{ secrets.TRMNL_ENDPOINT_URL }}
         STREET: ${{ secrets.STREET }}
         CITY: ${{ secrets.CITY }}
         COUNTRY: ${{ secrets.COUNTRY }}
