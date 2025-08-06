@@ -140,33 +140,34 @@ def processStatesData(flight_data):
 
 def getNearestFlight(coords, flights, verbose):
     """This function retrieves the nearest flight to the specified coordinates."""
-    nearest_flight = None
-    min_distance = float('inf') # Initialize minimum distance to infinity
-    earth_R = 6378 # Earth's radius in Km's
-    # coord_x_pos
-
+    # Earth radius (constant) (km)
+    earth_R = 6378
+    # Home coordinates vector (Polar form)
+    coord_x_pos = earth_R * cos(coords[0]) * cos(coords[1])
+    coord_y_pos = earth_R * cos(coords[0]) * sin(coords[1])
+    coords_vector = (coord_x_pos, coord_y_pos)
+    # Flight storage
     flights_distance = []
 
+    # Calculate each flight's distance from the origin and return a list of flights sorted on distance (asc)
     for flight in flights:
         if flight.latitude is not None and flight.longitude is not None:
             
             if verbose > 2:
-                print(f"Processing flight: {flight.callsign}, ICAO24: {flight.icao24}, Latitude: {flight.latitude}, Longitude: {flight.longitude}")
+                print(f"Calculating distance of flight: {flight.callsign}, ICAO24: {flight.icao24}, Latitude: {flight.latitude}, Longitude: {flight.longitude}")
 
-            # Calculate the Flight's Euclidean distance from the origin (home)
-            distance = ((flight.latitude - coords[0]) ** 2 + (flight.longitude - coords[1]) ** 2) ** 0.5
+            # Euclidean distance (lat/lon)
+            euclidean_distance = ((flight.latitude - coords[0]) ** 2 + (flight.longitude - coords[1]) ** 2) ** 0.5
             
-            # TODO: Calculate the Polar distance
-            # flight_x_pos = earth_R * cos(flight.latitude) * cos(flight.longitude)
-            # flight_y_pos = earth_R * cos(flight.latitude) * sin(flight.longitude)
-            # flight_vector = (flight_x_pos, flight_y_pos)
-            # distance = 
+            # Polar distance (km)
+            flight_x_pos = earth_R * cos(flight.latitude) * cos(flight.longitude)
+            flight_y_pos = earth_R * cos(flight.latitude) * sin(flight.longitude)
+            flight_vector = (flight_x_pos, flight_y_pos)
+            polar_distance = ((coords_vector[0] - flight_vector[0]) ** 2 + (coords_vector[1] - flight_vector[1]) ** 2) ** 0.5
 
-            flights_distance.append((flight, distance))
+            # Store Flight and distance to origin
+            flights_distance.append((flight, polar_distance))
 
-            # Store the closes flight
-            if distance < min_distance:
-                min_distance = distance
-                nearest_flight = flight
+    # Sort the box-bounded flights in order of distance (ascending)
     flights_distance.sort(key=lambda x: x[1])
-    return flights_distance  # Return the box bounded flights, sorted by distance
+    return flights_distance
