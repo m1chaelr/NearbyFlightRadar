@@ -30,9 +30,9 @@ def googleSE(flight_callsign, verbose, deploy_mode):
         # HTTP exception error handling
         if response.status_code != 200:
             if response.status_code == 429:
-                raise HTTPError(f"Google SE API failed due to rate limiting, status code: {response.status_code}")
+                raise HTTPError(f"Rate limiter response, status code: {response.status_code}")
             else:
-                raise Exception(f"Google SE API failed due to unhandled response: {response.status_code}")
+                raise Exception(f"Unhandled response, status code: {response.status_code}")
 
         search_results = response.json()
 
@@ -45,18 +45,25 @@ def googleSE(flight_callsign, verbose, deploy_mode):
         first_result = search_results['items'][0]
         first_url = first_result['link']
 
-        travel_dict = extractHTMLFlightDetails(first_url)
+        travel_dict = extractHTMLFlightDetails(first_url, verbose)
         return travel_dict
     
+    # Raise exceptions back to main.py for loop error handling
+    except HTTPError as e:
+        raise HTTPError(f"HTTPError during GoogleSE scraping: {e}")
     except Exception as e:
-        if verbose > 0:
-            print(f"Error during GoogleSE scraping for callsign: {flight_callsign}: {e}")
-        return None
+        raise Exception(f"General Exception during GoogleSE scraping: {e}")
+    except ValueError as e:
+        raise ValueError(f"ValueError during GoogleSE scraping: {e}")
+    except KeyError as e:
+        raise KeyError(f"KeyError during GoogleSE scraping: {e}")
 
 # Extract flight information from HTML
-def extractHTMLFlightDetails(url):
+def extractHTMLFlightDetails(url, verbose):
     """Extracts flight details from the HTML content of the provided URL."""
-
+    if verbose > 0:
+        print("Extracting HTML Flight details...")
+        
     headers = {
         "User-Agent": "Mozilla/5.0"  # Simulate browser request
     }
