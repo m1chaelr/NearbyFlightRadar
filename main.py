@@ -95,6 +95,8 @@ def getFlightRadar(deploy_mode, verbose):
         except ValueError as e:
             if verbose > 0:
                 print(f"Skipping {flight_callsign} due to failed extraction: {e}")
+            i += 1
+            continue
         
     if travel_dict is None:
         if verbose > 0:
