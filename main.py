@@ -7,6 +7,8 @@ import os
 from configManager import configManager
 from datetime import datetime
 from zoneinfo import ZoneInfo
+from requests.exceptions import HTTPError
+import time
 
 def getFlightRadar(deploy_mode, verbose):
     
@@ -60,7 +62,7 @@ def getFlightRadar(deploy_mode, verbose):
         flight_callsign = flight_record[0].callsign.strip()
 
         if verbose > 1:
-            print(f"The flight: {flight_icao24} is a type: {flight_typecode}")
+            print(f"The flight: {flight_icao24}, with callsign {flight_callsign} is a type: {flight_typecode}")
 
         # If invalid typecode, skip to the next flight
         if flight_typecode in ["Unknown", "''", ""]:
@@ -70,13 +72,18 @@ def getFlightRadar(deploy_mode, verbose):
         # Data retrieval (Google PSE)
         try:
             travel_dict = googleSE(flight_callsign, verbose, deploy_mode)
+        except HTTPError as e:
+                if verbose > 0:
+                    print(f"Rate limiting HTTP error: {e}. Waiting for 5 min before retrying...")
+                time.sleep(60*5) # Wait 5 mins before retrying
+                continue         # Retry the same flight
         except Exception as e:
             if verbose > 0:
                 print(f"Skipping flight {flight_callsign} due to failed scrape: {e}")
             travel_dict = None
             i += 1
             continue
-    
+        
     if travel_dict is None:
         if verbose > 0:
             print("No valid flight and scrape data found within bounded box.")

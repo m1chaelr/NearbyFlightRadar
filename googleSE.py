@@ -5,6 +5,7 @@ import re
 import json
 import os
 from configManager import configManager
+from requests.exceptions import HTTPError
 
 def googleSE(flight_callsign, verbose, deploy_mode):
     """Call Google Programmable Search Engine to scrape internet for flight callsign's origin and destination"""
@@ -26,10 +27,13 @@ def googleSE(flight_callsign, verbose, deploy_mode):
 
         response = requests.get(url)
 
+        # HTTP exception error handling
         if response.status_code != 200:
-            print(f"Google SE API failed with status code {response.status_code}")
-            return None
-        
+            if response.status_code == 429:
+                raise HTTPError(f"Google SE API failed due to rate limiting, status code: {response.status_code}")
+            else:
+                raise Exception(f"Google SE API failed due to unhandled response: {response.status_code}")
+
         search_results = response.json()
 
         # Handle empty response from GoogleSE
