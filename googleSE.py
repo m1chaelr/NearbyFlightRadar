@@ -91,6 +91,9 @@ def extractHTMLFlightDetails(url):
     flight_dict = data["flights"]
 
     for flight_id, flight_data in flight_dict.items():
+        if "activityLog" not in flight_data:
+            raise KeyError("'activityLog' missing in flight data")
+        
         flight_origin = flight_data["activityLog"]["flights"][0]["origin"]["friendlyLocation"]
         flight_dest = flight_data["activityLog"]["flights"][0]["destination"]["friendlyLocation"]
 
@@ -98,3 +101,5 @@ def extractHTMLFlightDetails(url):
             "origin" : flight_origin,
             "destination" : flight_dest
         }
+    
+    raise ValueError("No valid flight entries found in scraped data")

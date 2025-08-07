@@ -68,6 +68,10 @@ def getFlightRadar(deploy_mode, verbose):
         if flight_typecode in ["Unknown", "''", ""]:
             i += 1
             continue
+
+        if flight_callsign is None or flight_callsign in ["''", ""]:
+            i += 1
+            continue
         
         # Data retrieval (Google PSE)
         try:
@@ -77,6 +81,11 @@ def getFlightRadar(deploy_mode, verbose):
                     print(f"Rate limiting HTTP error: {e}. Waiting for 5 min before retrying...")
                 time.sleep(60*5) # Wait 5 mins before retrying
                 continue         # Retry the same flight
+        except KeyError as e:
+            if verbose > 0:
+                print(f"Skipping flight {flight_callsign} due to missing data: {e}")
+            i += 1
+            continue
         except Exception as e:
             if verbose > 0:
                 print(f"Skipping flight {flight_callsign} due to failed scrape: {e}")
