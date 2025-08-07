@@ -133,7 +133,7 @@ def getFlightRadar(deploy_mode, verbose):
     # Store the current time in Brisbane
     timezone = ZoneInfo(f"Australia/{address['city']}")
     now = datetime.now(timezone)
-    current_time = now.strftime("%H:%M%p %d %B %Y")
+    current_time = now.strftime("%H:%M %p %d %B %Y")
 
     # Store dictionary output
     output = {'callsign' : flight_callsign,
