@@ -1,9 +1,9 @@
 name: Update FlightRadar TRMNL
 
 on:
-  #schedule:
-    #- cron: '*/15 * * * *'
-  workflow_dispatch:
+  repository_dispatch:
+    types: [external-cron-trigger] # External POST req trigger
+  workflow_dispatch: # Manual Run
 
 jobs:
   update-flight-data:
