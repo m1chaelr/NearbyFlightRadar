@@ -33,8 +33,8 @@ jobs:
         STATE: ${{ secrets.STATE }}
         POSTALCODE: ${{ secrets.POSTALCODE }}
         GEOCODE_KEY: ${{ secrets.GEOCODE_KEY }}
-        GOOGLE_SE_ID: ${{ secrets.GOOGLE_SE_ID }}
-        GOOGLE_SE_KEY: ${{ secrets.GOOGLE_SE_KEY }}
+        GOOGLE_SE_ID: ${{ secrets.GOOGLE_SE_ID_2 }}
+        GOOGLE_SE_KEY: ${{ secrets.GOOGLE_SE_KEY_2 }}
         OPENSKY_CLIENT_ID: ${{ secrets.OPENSKY_CLIENT_ID }}
         OPENSKY_CLIENT_SECRET: ${{ secrets.OPENSKY_CLIENT_SECRET }}
       run: |
