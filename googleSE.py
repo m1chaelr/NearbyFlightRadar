@@ -38,9 +38,7 @@ def googleSE(flight_callsign, verbose, deploy_mode):
 
         # Handle empty response from GoogleSE
         if 'items' not in search_results or len(search_results['items']) == 0:
-            if verbose > 0:
-                print(f"No search results found for callsign: {flight_callsign}")
-            return None
+            raise KeyError(f"No search results found for callsign: {flight_callsign}")
         
         first_result = search_results['items'][0]
         first_url = first_result['link']
