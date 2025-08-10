@@ -2,7 +2,7 @@ import requests
 from flight import Flight  # Import the Flight class to create flight objects
 from openSkyAuth import get_token  # Import the function to get the OpenSky API token
 import time
-from math import cos, sin
+from math import cos, sin, pi, radians, atan2, sqrt
 
 flight_states_url = "https://opensky-network.org/api/states/all" # Base URL for the OpenSky Network API
 flight_aircraft_url = "https://opensky-network.org/api/flights/aircraft"
@@ -142,7 +142,12 @@ def getNearestFlight(coords, flights, verbose):
     # Home coordinates vector (Polar form)
     coord_x_pos = earth_R * cos(coords[0]) * cos(coords[1])
     coord_y_pos = earth_R * cos(coords[0]) * sin(coords[1])
-    coords_vector = (coord_x_pos, coord_y_pos)
+    coords_vector_pol = (coord_x_pos, coord_y_pos)
+
+    # Home coordinates (radians)
+    coords_lat_rad = radians(coords[0])
+    coords_lon_rad = radians(coords[1])
+    
     # Flight storage
     flights_distance = []
 
@@ -160,11 +165,22 @@ def getNearestFlight(coords, flights, verbose):
             flight_x_pos = earth_R * cos(flight.latitude) * cos(flight.longitude)
             flight_y_pos = earth_R * cos(flight.latitude) * sin(flight.longitude)
             flight_vector = (flight_x_pos, flight_y_pos)
-            polar_distance = ((coords_vector[0] - flight_vector[0]) ** 2 + (coords_vector[1] - flight_vector[1]) ** 2) ** 0.5
+            polar_distance = ((coords_vector_pol[0] - flight_vector[0]) ** 2 + (coords_vector_pol[1] - flight_vector[1]) ** 2) ** 0.5
+
+            # Haversine formula method
+            flight_lat_rad = radians(flight.latitude)
+            flight_lon_rad = radians(flight.longitude)
+
+            delta_lat = coords_lat_rad - flight_lat_rad
+            delta_lon = coords_lon_rad - flight_lon_rad
+
+            a = sin(delta_lat / 2) ** 2 + cos(flight_lat_rad) * cos(coords_lat_rad) * sin(delta_lon / 2) ** 2
+            c = 2 * atan2(sqrt(a), sqrt(1 - a))
+            haversine_distance = earth_R * c
             
 
             # Store Flight and distance to origin
-            flights_distance.append((flight, polar_distance))
+            flights_distance.append((flight, haversine_distance))
 
     # Sort the box-bounded flights in order of distance (ascending)
     flights_distance.sort(key=lambda x: x[1])

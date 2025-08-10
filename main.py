@@ -83,7 +83,7 @@ def getFlightRadar(deploy_mode, verbose):
         except HTTPError as e:
                 # time.sleep(60) # Wait 5 mins before retrying
                 # continue         # Retry the same flight
-                raise HTTPError(f"Rate limiting HTTP error: {e}. Exiting Update...")
+                raise HTTPError(f"HTTP error: {e}. Exiting Update...")
         except KeyError as e:
             if verbose > 0:
                 print(f"Skipping flight {flight_callsign} due to missing data: {e}")
@@ -103,7 +103,7 @@ def getFlightRadar(deploy_mode, verbose):
         
     if travel_dict is None:
         #TODO: Expand bounded box region perhaps? More flights more probability. However at this point maybe putting in a max attempts for computing power/API's sake
-        raise ValueError("No valid flight data. Exiting Update...")
+        raise ValueError("No valid flight data within bounded box. Exiting Update...")
         # travel_dict = {'origin' : 'N/A',
         #                'destination' : 'N/A'
         #             }
