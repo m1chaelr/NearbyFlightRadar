@@ -14,8 +14,8 @@ def googleSE(flight_callsign, verbose, deploy_mode):
             print("Scraping for Origin & Destination...")
         match deploy_mode:
             case 'web-service':
-                google_SE_Key = os.environ.get('GOOGLE_SE_KEY')
-                google_SE_Id = os.environ.get('GOOGLE_SE_ID')
+                google_SE_Key = os.environ.get('GOOGLE_SE_KEY_2')
+                google_SE_Id = os.environ.get('GOOGLE_SE_ID_2')
             case 'local-host':
                 config = configManager() # Load config singleton
                 google_SE_Key = config.get_value('googleSE', 'key')
