@@ -21,7 +21,10 @@ def getBoxData(coords, verbose, deploy_mode):
     #  Construct Query and call OpenSky States API
     query = f"?lamin={lamin}&lomin={lomin}&lamax={lamax}&lomax={lomax}"
     states_api_query = flight_states_url + query
-    flights = callOpenSkyRest(states_api_query, type = "states", verbose = verbose, deploy_mode = deploy_mode)
+    try:
+        flights = callOpenSkyRest(states_api_query, type = "states", verbose = verbose, deploy_mode = deploy_mode)
+    except Exception as e:
+        raise Exception(f"An error occured whilst calling OpenSky: {e}")
 
     flights_by_distance = getNearestFlight(coords, flights, verbose)  # Get the nearest flight to the specified coordinates
 
@@ -42,26 +45,38 @@ def callOpenSkyRest(api_url, type, verbose, deploy_mode):
         "Authorization": f"Bearer {token}"
     }
     response = requests.get(api_url, headers=headers)
-    if response.status_code == 200:
-        if response: 
-            flight_data = response.json()
+    
+    if response.status_code != 200:
+        raise Exception(f"Error fetching data from OpenSky API: {response.status_code}")
+    
+    if not response:
+        raise Exception(f"No data returned from OpenSky API.")
 
-            # Debugging output
-            if verbose > 0:
-                print(f"Retrieved {len(flight_data['states'])} flights from OpenSky API.")
-            elif verbose > 1:
-                print(f"Box-Bounded Flight Data: {flight_data}")
-            
-            # Process the flight data based on type
-            if type == "states":
-                result = processStatesData(flight_data) 
-            elif type == "aircraft":
-                result = processAircraftData(flight_data)
-            else:
-                raise ValueError("Invalid type specified. Use 'states' or 'aircraft'.")
-            return result
+    if response.status_code == 200:
+        flight_data = response.json()
+
+        # Catch None or empty lists
+        if type == "states":
+            if not flight_data.get("states"): # States endpoint
+                raise Exception("OpenSky API returned no 'states' data.")
+        elif type == "aircraft":
+            if not flight_data: #TODO: Add specific structure check here if you intend on ever using this endpoint
+                raise Exception("OpenSky returned no 'aircraft' data.")
+                
+        # Debugging output
+        if verbose > 0:
+            print(f"Retrieved {len(flight_data['states'])} flights from OpenSky API.")
+        elif verbose > 1:
+            print(f"Box-Bounded Flight Data: {flight_data}")
+        
+        # Process the flight data based on type
+        if type == "states":
+            result = processStatesData(flight_data) 
+        elif type == "aircraft":
+            result = processAircraftData(flight_data)
         else:
-            raise Exception("No data returned from OpenSky API.")
+            raise ValueError("Invalid type specified. Use 'states' or 'aircraft'.")
+        return result
     else:
         raise Exception(f"Error fetching data from OpenSky API: {response.status_code}")
     

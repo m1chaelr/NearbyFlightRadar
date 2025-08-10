@@ -46,8 +46,12 @@ def getFlightRadar(deploy_mode, verbose):
     # Data retrieval (API)
     if verbose > 0:
         print("Initiating data retrieval...")
-    coords = getCoords(address, deploy_mode, verbose) # Geocoding address
-    flights_by_distance = getBoxData(coords, verbose, deploy_mode)  # Retrieve flight data within the bounding box
+    
+    try:
+        coords = getCoords(address, deploy_mode, verbose) # Geocoding address
+        flights_by_distance = getBoxData(coords, verbose, deploy_mode)  # Retrieve flight data within the bounding box
+    except Exception as e:
+        raise Exception(f"An Error occurred whilst retrieving data: {e}")
 
     # Return the first closest flight with a valid type code, and is a live domestic flight
     flight_typecode = "Unknown"
@@ -77,10 +81,9 @@ def getFlightRadar(deploy_mode, verbose):
         try:
             travel_dict = googleSE(flight_callsign, verbose, deploy_mode)
         except HTTPError as e:
-                if verbose > 0:
-                    print(f"Rate limiting HTTP error: {e}. Waiting for 5 min before retrying...")
-                time.sleep(60*5) # Wait 5 mins before retrying
-                continue         # Retry the same flight
+                # time.sleep(60) # Wait 5 mins before retrying
+                # continue         # Retry the same flight
+                raise HTTPError(f"Rate limiting HTTP error: {e}. Exiting Update...")
         except KeyError as e:
             if verbose > 0:
                 print(f"Skipping flight {flight_callsign} due to missing data: {e}")
@@ -99,12 +102,11 @@ def getFlightRadar(deploy_mode, verbose):
             continue
         
     if travel_dict is None:
-        if verbose > 0:
-            print("No valid flight and scrape data found within bounded box.")
-            #TODO: Expand bounded box region perhaps? More flights more probability. However at this point maybe putting in a max attempts for computing power/API's sake
-        travel_dict = {'origin' : 'N/A',
-                       'destination' : 'N/A'
-                    }
+        #TODO: Expand bounded box region perhaps? More flights more probability. However at this point maybe putting in a max attempts for computing power/API's sake
+        raise ValueError("No valid flight data. Exiting Update...")
+        # travel_dict = {'origin' : 'N/A',
+        #                'destination' : 'N/A'
+        #             }
         
     if flight_typecode in ["''", ""]:
         flight_typecode = "Unknown"

@@ -44,5 +44,4 @@ def getCoords(address: str, deploy_mode, verbose) -> tuple:
             return None
 
     except requests.exceptions.RequestException as e:
-        print(f"Error making geocoding request: {e}")
-        return None
+        raise Exception(f"Error making geocoding request: {e}")

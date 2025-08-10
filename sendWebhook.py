@@ -4,6 +4,7 @@ import requests
 import json
 from main import getFlightRadar
 import os
+from requests.exceptions import HTTPError
 from flask import jsonify
 
 API_KEY = os.environ.get('FLIGHT_RADAR_API_KEY')
@@ -60,4 +61,10 @@ except requests.exceptions.RequestException as e:
     exit(1)
 except Exception as e:
     print(f"An unexpected error occurred: {e}")
+    exit(1)
+except ValueError as e:
+    print(f"Value Error occurred: {e}")
+    exit(1)
+except HTTPError as e:
+    print(f"HTTP Error occured: {e}")
     exit(1)
