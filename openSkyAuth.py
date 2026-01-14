@@ -1,9 +1,8 @@
 import requests
 import os
-from configManager import configManager
+from configManager import ConfigManager
 
 def get_token(deploy_mode):
-    """Fetches the OpenSky API token"""
     """
     Retrieve an authentication token from OpenSky Network.
     Returns:
@@ -15,7 +14,7 @@ def get_token(deploy_mode):
             client_id = os.environ.get('OPENSKY_CLIENT_ID')
             client_secret = os.environ.get('OPENSKY_CLIENT_SECRET')
         case 'local-host':
-            config = configManager() # Load config singleton
+            config = ConfigManager() # Load config singleton
             client_id = config.get_value('openSky', 'client_id')
             client_secret = config.get_value('openSky', 'client_secret')
 

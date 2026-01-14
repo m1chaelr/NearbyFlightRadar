@@ -1,12 +1,11 @@
 import requests
 import os
-from configManager import configManager
+from configManager import ConfigManager
             
 # Geocode API URL - TODO: Refactor to use environment variable for different services
 geocode_api_url = "https://geocode.maps.co/search"
 
-def getCoords(address: str, deploy_mode: str, verbose: int) -> tuple:
-    """This function retrieves the latitude and longitude for a given address."""
+def get_coords(address: dict, deploy_mode: str, verbose: int) -> tuple:
     """
     Retrieve the coordinates for a given address.
     
@@ -26,10 +25,10 @@ def getCoords(address: str, deploy_mode: str, verbose: int) -> tuple:
         case 'web-service':
             geocode_key = os.environ.get('GEOCODE_KEY')
         case 'local-host':
-            config = configManager()
+            config = ConfigManager()
             geocode_key = config.get_value('geocodeKey')
 
-    # Load address into API query
+    # Load address into API query, formatting spaces for URL
     street = address.get("street", "").replace(" ", "+")
     city = address.get("city", "").replace(" ", "+")
     state = address.get("state", "").replace(" ", "+")

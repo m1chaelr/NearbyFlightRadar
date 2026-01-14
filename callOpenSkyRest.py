@@ -9,7 +9,7 @@ from math import cos, sin, pi, radians, atan2, sqrt
 flight_states_url = "https://opensky-network.org/api/states/all" # Current states of all aircrafts
 flight_aircraft_url = "https://opensky-network.org/api/flights/aircraft" # Flight details by aircraft ICAO24
 
-def getBoxData(coords: tuple, verbose: int, deploy_mode: str):
+def get_box_data(coords: tuple, verbose: int, deploy_mode: str):
     """This function retrieves flight data within a specified bounding box."""
     
     # Create box around coordinates
@@ -25,11 +25,11 @@ def getBoxData(coords: tuple, verbose: int, deploy_mode: str):
     query = f"?lamin={lamin}&lomin={lomin}&lamax={lamax}&lomax={lomax}"
     states_api_query = flight_states_url + query
     try:
-        flights = _callOpenSkyRest(states_api_query, type = "states", verbose = verbose, deploy_mode = deploy_mode)
+        flights = _call_open_sky_api(states_api_query, type = "states", verbose = verbose, deploy_mode = deploy_mode)
     except Exception as e:
         raise Exception(f"An error occured whilst calling OpenSky: {e}")
 
-    flights_by_distance = _getNearestFlight(coords, flights, verbose)  # Get the nearest flight to the specified coordinates
+    flights_by_distance = _get_nearest_flight(coords, flights, verbose)  # Get the nearest flight to the specified coordinates
 
     if verbose > 1:
         print("The list of box-bounded flights are:")
@@ -38,7 +38,7 @@ def getBoxData(coords: tuple, verbose: int, deploy_mode: str):
 
     return flights_by_distance
 
-def _callOpenSkyRest(api_url:str, type: str, verbose: int, deploy_mode: str):
+def _call_open_sky_api(api_url:str, type: str, verbose: int, deploy_mode: str):
     """This function calls the OpenSky REST API and returns the flight data."""
     if verbose > 0:
         print("Calling OpenSky REST API with constructed box-bound query...")
@@ -74,16 +74,16 @@ def _callOpenSkyRest(api_url:str, type: str, verbose: int, deploy_mode: str):
         
         # Process the flight data based on type
         if type == "states":
-            result = _processStatesData(flight_data) 
+            result = _process_states_data(flight_data) 
         elif type == "aircraft":
-            result = _processAircraftData(flight_data)
+            result = _process_aircraft_data(flight_data)
         else:
             raise ValueError("Invalid type specified. Use 'states' or 'aircraft'.")
         return result
     else:
         raise Exception(f"Error fetching data from OpenSky API: {response.status_code}")
     
-def _processAircraftData(flight_data: dict) -> Flight:
+def _process_aircraft_data(flight_data: dict) -> Flight:
     """ This function processes the flight data returned by the OpenSky Aircraft API."""
     flights = []
     for flight in flight_data['states']:
@@ -110,7 +110,7 @@ def _processAircraftData(flight_data: dict) -> Flight:
         else:
             print(f"Flight {flight.icao24} does not have a valid departure or arrival airport. Checking next flight.")
 
-def _processStatesData(flight_data: dict) -> list:
+def _process_states_data(flight_data: dict) -> list:
     """ This function processes the flight data returned by the OpenSky States API."""
     flights = []
     for flight in flight_data['states']:
@@ -138,7 +138,7 @@ def _processStatesData(flight_data: dict) -> list:
         flights.append(flight_obj)
     return flights  # Return the list of Flight objects
 
-def _getNearestFlight(coords: tuple, flights: list, verbose: int) -> list:
+def _get_nearest_flight(coords: tuple, flights: list, verbose: int) -> list:
     """This function retrieves the nearest flight to the specified coordinates."""
     # Earth radius (constant) (km)
     earth_R = 6378

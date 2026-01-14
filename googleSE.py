@@ -4,10 +4,10 @@ from bs4 import BeautifulSoup
 import re
 import json
 import os
-from configManager import configManager
+from configManager import ConfigManager
 from requests.exceptions import HTTPError
 
-def googleSE(flight_callsign, verbose, deploy_mode):
+def google_se_scrape(flight_callsign: str, verbose: int, deploy_mode: str) -> dict:
     """
     Call Google Programmable Search Engine to scrape the internet for the flight callsign's origin and destination.
     
@@ -15,6 +15,12 @@ def googleSE(flight_callsign, verbose, deploy_mode):
         flight_callsign (str): The flight callsign to search for.
         verbose (int): Verbosity level for logging.
         deploy_mode (str): Mode of deployment ('web-service' or 'local-host').
+
+    Raises:
+        HTTPError: If there is an HTTP error during the API call.
+        Exception: For general exceptions during the scraping process.
+        ValueError: If there are issues with the data extraction.
+        KeyError: If expected keys are missing in the flight data.
     
     Returns:
         dict: A dictionary containing the origin and destination of the flight.
@@ -30,7 +36,7 @@ def googleSE(flight_callsign, verbose, deploy_mode):
                 google_SE_Key = os.environ.get('GOOGLE_SE_KEY')
                 google_SE_Id = os.environ.get('GOOGLE_SE_ID')
             case 'local-host':
-                config = configManager() # Load config singleton
+                config = ConfigManager() # Load config singleton
                 google_SE_Key = config.get_value('googleSE', 'key')
                 google_SE_Id = config.get_value('googleSE', 'id')
                 
@@ -56,7 +62,7 @@ def googleSE(flight_callsign, verbose, deploy_mode):
         first_result = search_results['items'][0]
         first_url = first_result['link']
 
-        travel_dict = _extractHTMLFlightDetails(first_url, verbose)
+        travel_dict = _extract_html_flight_details(first_url, verbose)
         return travel_dict
     
     # Raise exceptions back to main.py for loop error handling
@@ -70,8 +76,25 @@ def googleSE(flight_callsign, verbose, deploy_mode):
         raise KeyError(f"[ERROR] KeyError during GoogleSE scraping: {e}")
 
 # Extract flight information from HTML
-def _extractHTMLFlightDetails(url, verbose):
-    """Extracts flight details from the HTML content of the provided URL."""
+def _extract_html_flight_details(url: str, verbose: int) -> dict:
+    """
+    Extract flight origin and destination from the HTML content of the given URL.
+
+    Args:
+        url (str): The URL of the webpage to extract flight details from.
+        verbose (int): Verbosity level for logging.
+
+    Raises:
+        ValueError: If the URL cannot be fetched or parsed.
+        ValueError: If the required JSON data is not found in the HTML content.
+        ValueError: If the JSON data cannot be decoded.
+        ValueError: If no valid flight entries are found in the scraped data.
+        KeyError: If expected keys are missing in the flight data.
+        ValueError: If the script tag containing flight data is not found.
+    Returns:
+        dict: A dictionary containing the origin and destination of the flight.
+    """
+    
     if verbose > 0:
         print("Extracting HTML Flight details...")
         

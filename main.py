@@ -1,16 +1,31 @@
 # Function imports
 from aircraftData import load_aircraft_data
-from callOpenSkyRest import getBoxData
-from geocodeData import getCoords 
-from googleSE import googleSE
+from callOpenSkyRest import get_box_data
+from geocodeData import get_coords 
+from googleSE import google_se_scrape
 import os
-from configManager import configManager
+from configManager import ConfigManager
 from datetime import datetime
 from zoneinfo import ZoneInfo
 from requests.exceptions import HTTPError
 import time
 
-def getFlightRadar(deploy_mode, verbose) -> dict:
+def get_flight_radar(deploy_mode: str, verbose: int) -> dict:
+    """
+    Main function to get the nearest flight details including origin and destination.
+
+    Args:
+        deploy_mode (str): Deployment mode, either 'web-service' or 'local-host'.
+        verbose (int): Verbosity level for logging output.
+
+    Raises:
+        Exception: Raised for various errors during data retrieval and processing.
+        HTTPError: Raised for HTTP errors during GoogleSE API calls.
+        ValueError: Raised when no valid flight data is found.
+
+    Returns:
+        nearest_flight_details (dict): A dictionary containing details of the nearest flight.
+    """
     
     # Load Aircraft Detail Enrichment Dataset
     try:
@@ -35,7 +50,7 @@ def getFlightRadar(deploy_mode, verbose) -> dict:
             
         # Local host (debugging)
         case 'local-host':
-            config = configManager()
+            config = ConfigManager()
             address = {'street': config.get_value("address","street"), 
                 'city': config.get_value("address","city"),
                 'state': config.get_value("address","state"),
@@ -47,8 +62,8 @@ def getFlightRadar(deploy_mode, verbose) -> dict:
         print("Initiating data retrieval...")
     try:
         # Geocode the address to coordinates and get flight data within bounding box
-        coords = getCoords(address, deploy_mode, verbose)
-        flights_by_distance = getBoxData(coords, verbose, deploy_mode)
+        coords = get_coords(address, deploy_mode, verbose)
+        flights_by_distance = get_box_data(coords, verbose, deploy_mode)
     except Exception as e:
         raise Exception(f"[ERROR] An Error occurred whilst retrieving data: {e}")
 
@@ -81,7 +96,7 @@ def getFlightRadar(deploy_mode, verbose) -> dict:
         
         # Data retrieval (Google PSE)
         try:
-            travel_dict = googleSE(flight_callsign, verbose, deploy_mode)
+            travel_dict = google_se_scrape(flight_callsign, verbose, deploy_mode)
 
         except HTTPError as e:
                 #TODO: Implement rate limiting handling here for high volume production use
@@ -108,9 +123,6 @@ def getFlightRadar(deploy_mode, verbose) -> dict:
     if travel_dict is None:
         #TODO: Expand bounded box region perhaps? More flights more probability. However at this point maybe putting in a max attempts for computing power/API's sake
         raise ValueError("[ERROR] No valid flight data within bounded box. Exiting Update...")
-        # travel_dict = {'origin' : 'N/A',
-        #                'destination' : 'N/A'
-        #             }
     
     # Catch edge case where typecode is invalid after loop
     if flight_typecode in ["''", ""]:

@@ -1,11 +1,11 @@
 import json
 
-class configManager:
+class ConfigManager:
     _instance = None
 
     def __new__(cls, config_path = "config/settings.json"):
         if cls._instance is None:
-            cls._instance = super(configManager, cls).__new__(cls)
+            cls._instance = super(ConfigManager, cls).__new__(cls)
             with open(config_path) as f:
                 cls._instance._config = json.load(f)
         return cls._instance
@@ -14,7 +14,7 @@ class configManager:
         """
         Get the OpenSky configuration value.
         Returns:
-            str: OpenSky configuration value.
+            dict: OpenSky configuration value.
         """
         return self._config["openSky"]
     
@@ -30,7 +30,7 @@ class configManager:
         """
         Get the Google Search Engine configuration value.
         Returns:
-            str: Google Search Engine configuration value.
+            dict: Google Search Engine configuration value.
         """
         return self._config["googleSE"]
     
@@ -38,7 +38,7 @@ class configManager:
         """
         Get the address configuration value.
         Returns:
-            str: Address configuration value.
+            dict: Address configuration value.
         """
         return self._config["address"]
     

@@ -2,7 +2,7 @@
 
 import requests
 import json
-from main import getFlightRadar
+from main import get_flight_radar
 import os
 
 API_KEY = os.environ.get('FLIGHT_RADAR_API_KEY')
@@ -30,7 +30,7 @@ if not STATE:
 try:
     print("Fetching flight data...")
     # Pass the address and mode to the data fetching function
-    data = getFlightRadar('web-service')
+    data = get_flight_radar('web-service')
     print("Flight data fetched successfully.")
 
     # Prepare the POST request headers and payload

@@ -1,7 +1,7 @@
-from main import getFlightRadar
+from main import get_flight_radar
 
 # Retrieve updated flight data locally on machine 
 verbose = 2
 print("Fetching flight data...")
-data = getFlightRadar('local-host', verbose)
+data = get_flight_radar('local-host', verbose)
 print("Flight data fetched successfully.")

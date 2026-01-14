@@ -20,8 +20,9 @@ def load_aircraft_data(csv_path: str) -> dict:
     """
     # Set the field size limit to the maximum possible value to handle large files
     csv.field_size_limit(2**31 - 1)
-    
     aircraft_data = {}
+
+    # Attempt to open and read the CSV file
     try:
         with open(csv_path, newline='') as file:
             reader = csv.reader(file)

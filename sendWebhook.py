@@ -1,8 +1,7 @@
-# update_and_upload.py
-
+# IMPORTS
 import requests
 import json
-from main import getFlightRadar
+from main import get_flight_radar
 import os
 from requests.exceptions import HTTPError
 from flask import jsonify
@@ -15,7 +14,7 @@ verbose = 2 # Verbosity {0: no output, 1: Basic Process Flow, 2: Debugging - All
 
 # Check if required environment variables are set
 
-# ---- Web-service API key deprecated in favour of webhook method ----
+# Web-service API key deprecated in favour of webhook method
 # if not API_KEY:
 #     print("Error: FLIGHT_RADAR_API_KEY is not set.")
 #     exit(1)
@@ -33,28 +32,27 @@ if not STATE:
     exit(1)
 
 try:
-    # Retrieve updated flight data
+    # Retrieve nearest flight data
     print("Fetching flight data...")
-    data = getFlightRadar('web-service', verbose)
+    nearest_flight_details = get_flight_radar('web-service', verbose)
     print("Flight data fetched successfully.")
 
-    # Send POST request
+    # Build headers and body for POST request
     headers = {
         "Content-Type": "application/json"
     }
     body = {
-        "merge_variables": data
+        "merge_variables": nearest_flight_details
     }
-
     payload_size = len(json.dumps(body))
-
     print("Size: ", payload_size, " bytes")
 
+    # Send POST request to TRMNL endpoint
     print(f"Uploading data to TRMNL endpoint")
     response = requests.post(ENDPOINT, headers=headers, json=body)
+    response.raise_for_status() # Raise an error for bad responses
 
-    response.raise_for_status() # Raise an exception for bad status codes
-
+    # Print response status and content
     print("Status:", response.status_code)
     print("Response:", response.text)
 
