@@ -11,7 +11,7 @@ DATA_CACHE_PATH = "data.json"
 @app.route("/data")
 def getData():
     """
-    TRMNL polling endpoint. It retrieves cached data from the
+    TRMNL POLL method endpoint. It retrieves cached data from the
     local JSON file and returns it instantly.
     Requires API Key authentication.
     """
@@ -33,7 +33,7 @@ def getData():
         return jsonify({"error": "Failed to retrieve cached data"}), 500
 
 @app.route("/upload", methods=["POST"])
-def upload_data():
+def uploadData():
     """
     Endpoint for GitHub Actions to POST fresh flight data.
     Requires API Key authentication.

@@ -2,15 +2,15 @@ import requests
 import time
 from openSkyAuth import get_token  # Reuse the OAuth2 token function
 
-def test_flights_by_aircraft(icao24):
+def test_flights_by_aircraft(icao24) -> time.Any | None:
     """
     Retrieves flights by a specific aircraft in a given time window using the REST API.
     """
     token = get_token()
 
     # Example: Get flights from 2 days ago (because flights are only updated nightly)
-    end_time = int(time.time()) - 86400  # Yesterday
-    start_time = end_time - 86400        # Day before yesterday
+    end_time: int = int(time.time()) - 86400  # Yesterday
+    start_time: int = end_time - 86400        # Day before yesterday
 
     url = "https://opensky-network.org/api/flights/aircraft"
     params = {
@@ -19,13 +19,13 @@ def test_flights_by_aircraft(icao24):
         "end": end_time
     }
 
-    headers = {
+    headers: dict[str, str] = {
         "Authorization": f"Bearer {token}"
     }
 
     print(f"Querying flights for ICAO24={icao24} between {start_time} and {end_time}")
     
-    response = requests.get(url, headers=headers, params=params)
+    response: requests.Response = requests.get(url, headers=headers, params=params)
 
     if response.status_code == 200:
         flights = response.json()

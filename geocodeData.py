@@ -2,12 +2,22 @@ import requests
 import os
 from configManager import configManager
             
-# Define the geocode API URL
+# Geocode API URL - TODO: Refactor to use environment variable for different services
 geocode_api_url = "https://geocode.maps.co/search"
 
-# Define Functions
-def getCoords(address: str, deploy_mode, verbose) -> tuple:
+def getCoords(address: str, deploy_mode: str, verbose: int) -> tuple:
     """This function retrieves the latitude and longitude for a given address."""
+    """
+    Retrieve the coordinates for a given address.
+    
+    Args:
+        address (dict): A dictionary containing address components.
+        deploy_mode (str): The mode of deployment ('web-service' or 'local-host').
+        verbose (int): Verbosity level for logging.
+    
+    Returns:
+        tuple: A tuple containing (latitude, longitude) if found, otherwise None.
+    """
 
     if verbose > 0:
         print("Geocoding home-set address into coordinates...")

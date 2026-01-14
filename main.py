@@ -10,16 +10,15 @@ from zoneinfo import ZoneInfo
 from requests.exceptions import HTTPError
 import time
 
-def getFlightRadar(deploy_mode, verbose):
+def getFlightRadar(deploy_mode, verbose) -> dict:
     
-    # Load Aircraft Detail Dataset
+    # Load Aircraft Detail Enrichment Dataset
     try:
         if verbose > 0:
             print("Loading aircraft detail dataset...")
         aircraft_models = load_aircraft_data('aircraftDetailDataset.csv')
     except Exception as e:
-        print(f"Error loading Aircraft Dataset: {e}")
-        
+        print(f"[ERROR] Error loading Aircraft Detail Enrichment Dataset: {e}")
 
     # Load Environment variables dependent on deploy mode
     if verbose > 0:
@@ -34,7 +33,7 @@ def getFlightRadar(deploy_mode, verbose):
                 'country': os.environ.get('COUNTRY'),
                 'postalcode': os.environ.get('POSTALCODE')}
             
-        # On-device host (debugging)
+        # Local host (debugging)
         case 'local-host':
             config = configManager()
             address = {'street': config.get_value("address","street"), 
@@ -46,20 +45,22 @@ def getFlightRadar(deploy_mode, verbose):
     # Data retrieval (API)
     if verbose > 0:
         print("Initiating data retrieval...")
-    
     try:
-        coords = getCoords(address, deploy_mode, verbose) # Geocoding address
-        flights_by_distance = getBoxData(coords, verbose, deploy_mode)  # Retrieve flight data within the bounding box
+        # Geocode the address to coordinates and get flight data within bounding box
+        coords = getCoords(address, deploy_mode, verbose)
+        flights_by_distance = getBoxData(coords, verbose, deploy_mode)
     except Exception as e:
-        raise Exception(f"An Error occurred whilst retrieving data: {e}")
+        raise Exception(f"[ERROR] An Error occurred whilst retrieving data: {e}")
 
-    # Return the first closest flight with a valid type code, and is a live domestic flight
+    # Return the flight which is (closest, type code is valid, is live domestic flight)
     flight_typecode = "Unknown"
     i = 0
     travel_dict = None
-
+    
+    # Loop through flights by distance until a valid flight is found
     while travel_dict is None and i < len(flights_by_distance): 
 
+        # Extract flight details (Live data + enrichment)
         flight_record = flights_by_distance[i]
         flight_typecode = aircraft_models.get(flight_record[0].icao24.strip().lower(), "Unknown")
         flight_icao24 = flight_record[0].icao24.strip()
@@ -72,7 +73,8 @@ def getFlightRadar(deploy_mode, verbose):
         if flight_typecode in ["Unknown", "''", ""]:
             i += 1
             continue
-
+        
+        # If invalid callsign, skip to the next flights
         if flight_callsign is None or flight_callsign in ["''", ""]:
             i += 1
             continue
@@ -80,38 +82,41 @@ def getFlightRadar(deploy_mode, verbose):
         # Data retrieval (Google PSE)
         try:
             travel_dict = googleSE(flight_callsign, verbose, deploy_mode)
+
         except HTTPError as e:
-                # time.sleep(60) # Wait 5 mins before retrying
-                # continue         # Retry the same flight
-                raise HTTPError(f"HTTP error: {e}. Exiting Update...")
+                #TODO: Implement rate limiting handling here for high volume production use
+                raise HTTPError(f"[ERROR] HTTP error: {e}. Exiting Update...")
         except KeyError as e:
             if verbose > 0:
-                print(f"Skipping flight {flight_callsign} due to missing data: {e}")
+                print(f"[INFO] Skipping flight {flight_callsign} due to missing data: {e}")
             i += 1
             continue
+
         except Exception as e:
             if verbose > 0:
-                print(f"Skipping flight {flight_callsign} due to failed scrape: {e}")
+                print(f"[INFO] Skipping flight {flight_callsign} due to failed scrape: {e}")
             travel_dict = None
             i += 1
             continue
+        
         except ValueError as e:
             if verbose > 0:
-                print(f"Skipping {flight_callsign} due to failed extraction: {e}")
+                print(f"[INFO] Skipping {flight_callsign} due to failed extraction: {e}")
             i += 1
             continue
         
     if travel_dict is None:
         #TODO: Expand bounded box region perhaps? More flights more probability. However at this point maybe putting in a max attempts for computing power/API's sake
-        raise ValueError("No valid flight data within bounded box. Exiting Update...")
+        raise ValueError("[ERROR] No valid flight data within bounded box. Exiting Update...")
         # travel_dict = {'origin' : 'N/A',
         #                'destination' : 'N/A'
         #             }
-        
+    
+    # Catch edge case where typecode is invalid after loop
     if flight_typecode in ["''", ""]:
         flight_typecode = "Unknown"
 
-    # Data processing
+    # Data aggregation and output
     if verbose > 0:
         print("Extracting nearest valid flight details...")
     flight_info = flight_record[0]
@@ -132,13 +137,13 @@ def getFlightRadar(deploy_mode, verbose):
         print(f"Velocity: {flight_vel} m/s, Squawk: {flight_squawk}, SPI: {flight_spi}")
         print(f"Origin: {travel_dict['origin']}, Destination: {travel_dict['destination']}")
     
-    # Store the current time in Brisbane
+    # Store the current time in Brisbane timezone for TRMNL display
     timezone = ZoneInfo(f"Australia/{address['city']}")
     now = datetime.now(timezone)
     current_time = now.strftime("%H:%M %p %d %B %Y")
 
     # Store dictionary output
-    output = {'callsign' : flight_callsign,
+    nearest_flight_details = {'callsign' : flight_callsign,
               'typecode' : flight_typecode,
               'origin' : travel_dict['origin'],
               'destination' : travel_dict['destination'],
@@ -147,4 +152,4 @@ def getFlightRadar(deploy_mode, verbose):
               'updated_at' : current_time
             }
 
-    return output
+    return nearest_flight_details

@@ -4,6 +4,11 @@ from configManager import configManager
 
 def get_token(deploy_mode):
     """Fetches the OpenSky API token"""
+    """
+    Retrieve an authentication token from OpenSky Network.
+    Returns:
+        str: Authentication token if successful, otherwise None.
+    """
 
     match deploy_mode:
         case 'web-service':

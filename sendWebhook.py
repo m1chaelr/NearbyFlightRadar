@@ -7,19 +7,21 @@ import os
 from requests.exceptions import HTTPError
 from flask import jsonify
 
-API_KEY = os.environ.get('FLIGHT_RADAR_API_KEY')
+# API_KEY = os.environ.get('FLIGHT_RADAR_API_KEY') # WEB-SERVICE API KEY - Deprecated
 ENDPOINT = os.environ.get('TRMNL_ENDPOINT_URL')
 STREET = os.environ.get('STREET')
 STATE = os.environ.get('STATE')
 verbose = 2 # Verbosity {0: no output, 1: Basic Process Flow, 2: Debugging - All}
 
 # Check if required environment variables are set
-if not API_KEY:
-    print("Error: FLIGHT_RADAR_API_KEY is not set.")
-    exit(1)
+
+# ---- Web-service API key deprecated in favour of webhook method ----
+# if not API_KEY:
+#     print("Error: FLIGHT_RADAR_API_KEY is not set.")
+#     exit(1)
 
 if not ENDPOINT:
-    print("Error: RENDER_ENDPOINT_URL is not set.")
+    print("Error: TRMNL_ENDPOINT_URL is not set.")
     exit(1)
 
 if not STREET:
