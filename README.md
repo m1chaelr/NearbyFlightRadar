@@ -15,6 +15,9 @@ NearbyFlightRadar is a Python-based application and web service that provides re
 
 ---
 
+## Systems Architecture Diagram
+![Systems Architecture Diagram](FlightRadarSystemArchitecture.jpeg)
+
 ## Project Structure
 
 | File/Folder                | Purpose                                                      |
