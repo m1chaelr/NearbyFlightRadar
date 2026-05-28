@@ -5,6 +5,9 @@ venv/
 __pycache__/
 *.pyc
 
+# MacOS
+.DS_Store
+
 # Ignore API keys and sensitive information
 config.py
 testing.py
